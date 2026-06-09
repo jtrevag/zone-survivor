@@ -12,8 +12,8 @@ Core mechanic: manual reload timing as primary skill expression.
 - `docs/CHANGELOG.md` — update this after every meaningful change
 
 ## Commands
-- Run game: `python main.py`
-- Install deps: `pip install -r requirements.txt`
+- Run game: `python3 main.py`
+- Install deps: `pip3 install -r requirements.txt`
 
 ## Project Structure
 ```
@@ -36,7 +36,9 @@ stalker-survivor/
 ## Code Rules
 - All magic numbers go in `settings.py` — never hardcode values inline
 - `main.py` contains only the game loop — no entity or system logic
-- Use pygame sprite groups for all entities
+- Use `all_sprites` for group membership and collision; update via `all_sprites.update(dt, player)`
+- Every entity implements `draw(surface)` — main loop calls `for entity in all_sprites: entity.draw(screen)`; do not rely on `Group.draw()` (requires `self.image`, which we don't use)
+- All sprite `update` signatures must be `update(self, dt, player=None)` — `player` is the Player instance, used by enemies for targeting; entities that don't need it ignore it
 - Comment non-obvious logic; no comments on self-evident code
 - Target 60 FPS
 

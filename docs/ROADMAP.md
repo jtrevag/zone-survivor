@@ -4,12 +4,12 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
-## Milestone 1 — Moving Player
-- [ ] Pygame window opens at 1280x720, 60fps
-- [ ] Player (white circle) renders in center
-- [ ] WASD movement with arena bounds
-- [ ] Player rotates to face mouse cursor
-- [ ] `settings.py` holds all constants
+## Milestone 1 — Moving Player ✓
+- [x] Pygame window opens at 1280x720, 60fps
+- [x] Player (white circle) renders in center
+- [x] WASD movement with arena bounds
+- [x] Player rotates to face mouse cursor
+- [x] `settings.py` holds all constants
 
 ---
 
