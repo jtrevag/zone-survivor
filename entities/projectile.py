@@ -1,7 +1,7 @@
 import pygame
 from settings import (
     ARENA_LEFT, ARENA_TOP, ARENA_RIGHT, ARENA_BOTTOM,
-    BULLET_SPEED, BULLET_RADIUS, BULLET_COLOR,
+    PLAYER_DAMAGE, BULLET_SPEED, BULLET_RADIUS, BULLET_COLOR,
 )
 
 
@@ -10,6 +10,7 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__()
         self.pos = pygame.math.Vector2(pos)
         self.vel = direction * BULLET_SPEED
+        self.damage = PLAYER_DAMAGE
         self.rect = pygame.Rect(0, 0, BULLET_RADIUS * 2, BULLET_RADIUS * 2)
         self.rect.center = (int(self.pos.x), int(self.pos.y))
 

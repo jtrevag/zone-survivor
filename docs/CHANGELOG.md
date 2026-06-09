@@ -4,6 +4,19 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v0.4 — 2026-06-09
+- Milestone 3: first enemy (Mutant)
+- `entities/enemy.py`: Mutant class — red 20×20 rect, 140 px/s, 35 HP, chases player directly, deals 15 contact damage per 0.5s
+- `systems/spawner.py`: timer-based spawner, 1 Mutant every 3s at a random arena edge
+- `entities/player.py`: added `max_hp`, `hp`, `dead`, `take_damage()` — player dies at 0 HP
+- `entities/projectile.py`: `Bullet` now carries `damage = PLAYER_DAMAGE (40)` — one-shots mutants
+- `ui/hud.py`: HP bar at top-left (label + red fill bar); game-over overlay with "Press R to restart"
+- `main.py`: `new_game()` reset function; separate `enemies`/`bullets` groups; `groupcollide` for bullet↔enemy; R from game-over triggers full reset
+- `settings.py`: added `PLAYER_MAX_HP`, `PLAYER_DAMAGE`, all mutant constants, `SPAWN_INTERVAL`, HP-bar HUD colors, `HUD_FONT_SIZE_LARGE`
+- Docs: `MECHANICS.md` updated with death/restart and M3 spawn rules; `ROADMAP.md` M2 and M3 checked off
+
+---
+
 ## v0.3 — 2026-06-09
 - Python 3.12 venv added (`.venv/`) — workaround for pygame 2.6.1 circular import bug between `pygame.font` and `pygame.sysfont` that Python 3.14 rejects; upstream fix tracked at pygame/pygame#4607
 - `.venv/` added to `.gitignore`; `CLAUDE.md` updated with venv activation step

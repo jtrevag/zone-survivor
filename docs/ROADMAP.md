@@ -13,24 +13,24 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
-## Milestone 2 — Combat Basics
-- [ ] Left click fires a bullet toward mouse cursor
-- [ ] Bullet travels and despawns at arena edge
-- [ ] Ammo counter decrements on fire
-- [ ] Empty-click does nothing (no fire at 0 ammo)
-- [ ] R key initiates reload with timer
-- [ ] Cannot fire during reload
-- [ ] HUD: ammo counter + reload progress bar
+## Milestone 2 — Combat Basics ✓
+- [x] Left click fires a bullet toward mouse cursor
+- [x] Bullet travels and despawns at arena edge
+- [x] Ammo counter decrements on fire
+- [x] Empty-click does nothing (no fire at 0 ammo)
+- [x] R key initiates reload with timer
+- [x] Cannot fire during reload
+- [x] HUD: ammo counter + reload progress bar
 
 ---
 
-## Milestone 3 — First Enemy (Mutant)
-- [ ] Mutants spawn at arena edges
-- [ ] Mutants chase player directly
-- [ ] Player bullets hit and kill mutants
-- [ ] Mutants deal contact damage to player
-- [ ] Player HP displayed on HUD
-- [ ] Player death state (game over screen, restart)
+## Milestone 3 — First Enemy (Mutant) ✓
+- [x] Mutants spawn at arena edges
+- [x] Mutants chase player directly
+- [x] Player bullets hit and kill mutants
+- [x] Mutants deal contact damage to player
+- [x] Player HP displayed on HUD
+- [x] Player death state (game over screen, restart)
 
 ---
 
