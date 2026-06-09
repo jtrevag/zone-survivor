@@ -1,6 +1,7 @@
 import pygame
 from settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND_COLOR
 from entities.player import Player
+from ui.hud import HUD
 
 
 def main():
@@ -12,6 +13,7 @@ def main():
     all_sprites = pygame.sprite.Group()
     player = Player()
     all_sprites.add(player)
+    hud = HUD()
 
     running = True
     while running:
@@ -22,12 +24,19 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                bullet = player.try_fire()
+                if bullet:
+                    all_sprites.add(bullet)
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                player.try_reload()
 
         all_sprites.update(dt, player)
 
         screen.fill(BACKGROUND_COLOR)
         for entity in all_sprites:
             entity.draw(screen)
+        hud.draw(screen, player)
         pygame.display.flip()
 
     pygame.quit()
