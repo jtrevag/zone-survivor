@@ -12,8 +12,9 @@ Core mechanic: manual reload timing as primary skill expression.
 - `docs/CHANGELOG.md` — update this after every meaningful change
 
 ## Commands
+- Activate venv: `source .venv/bin/activate` (Python 3.12 — required due to pygame/Python 3.14 circular import bug)
 - Run game: `python3 main.py`
-- Install deps: `pip3 install -r requirements.txt`
+- Install deps: `pip install -r requirements.txt`
 
 ## Project Structure
 ```
