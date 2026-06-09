@@ -3,7 +3,7 @@ from settings import (
     ARENA_LEFT, ARENA_TOP, ARENA_RIGHT, ARENA_BOTTOM,
     WHITE, INDICATOR_COLOR,
     PLAYER_SPEED, PLAYER_RADIUS, PLAYER_INDICATOR_LENGTH,
-    PLAYER_MAG_SIZE, PLAYER_RELOAD_TIME, PLAYER_SHOT_COOLDOWN,
+    PLAYER_MAX_HP, PLAYER_MAG_SIZE, PLAYER_RELOAD_TIME, PLAYER_SHOT_COOLDOWN,
 )
 from entities.projectile import Bullet
 
@@ -20,10 +20,20 @@ class Player(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, PLAYER_RADIUS * 2, PLAYER_RADIUS * 2)
         self.rect.center = (int(self.pos.x), int(self.pos.y))
 
+        self.max_hp = PLAYER_MAX_HP
+        self.hp = PLAYER_MAX_HP
+        self.dead = False
         self.ammo = PLAYER_MAG_SIZE
         self.reloading = False
         self.reload_progress = 0.0   # 0.0 → 1.0
         self._shot_cooldown = 0.0    # seconds remaining until next shot allowed
+
+    def take_damage(self, amount):
+        if self.dead:
+            return
+        self.hp = max(0, self.hp - amount)
+        if self.hp <= 0:
+            self.dead = True
 
     def try_fire(self):
         """Return a Bullet if firing is allowed, else None."""

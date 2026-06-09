@@ -80,3 +80,19 @@ Enemies spawn at random points along arena edges, outside player view when possi
 - Player bullet ↔ Enemy: enemy takes damage, bullet despawns
 - Player bullet ↔ Player bullet: no interaction
 - Enemies ↔ Enemies: no collision (overlap allowed in v1)
+
+---
+
+## Player Death & Restart
+- Player dies when HP reaches 0
+- Game freezes on death (enemies stop, spawner stops)
+- Game-over overlay displayed: "GAME OVER" + "Press R to restart"
+- R key from game-over state resets all game objects (player, enemies, bullets, spawner) to initial state
+- ESC still quits from game-over state
+
+---
+
+## Spawning (Milestone 3)
+- Mutants only (Bandits added in M4)
+- Spawn rate: 1 Mutant every 3 seconds
+- Spawn position: random point along arena edge (top/bottom/left/right wall)
