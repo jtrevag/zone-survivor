@@ -65,22 +65,10 @@ class HUD:
         # Pre-allocated surfaces
         self._overlay_surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         self._cached_level_up_key = None
-        self._game_over_surf = self._build_game_over_surf()
-
-    def _build_game_over_surf(self):
-        surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        surf.fill((0, 0, 0, 160))
-        go_surf, go_rect = self._font_large.render("GAME OVER", (220, 60, 60))
-        surf.blit(go_surf, (
-            (WIDTH - go_rect.width) // 2,
-            HEIGHT // 2 - go_rect.height - 16,
-        ))
-        sub_surf, sub_rect = self._font.render("Press R to restart", (200, 200, 200))
-        surf.blit(sub_surf, (
-            (WIDTH - sub_rect.width) // 2,
-            HEIGHT // 2 + 16,
-        ))
-        return surf
+        self._game_over_surf = None
+        self._cached_game_over_elapsed = -1
+        self._win_surf = None
+        self._cached_win_elapsed = -1
 
     def _draw_bar(self, surface, bg_rect, ratio, fill_color, bg_color):
         pygame.draw.rect(surface, bg_color, bg_rect, border_radius=3)
@@ -88,6 +76,18 @@ class HUD:
         if fill_w > 0:
             fill_rect = pygame.Rect(bg_rect.x, bg_rect.y, fill_w, bg_rect.height)
             pygame.draw.rect(surface, fill_color, fill_rect, border_radius=3)
+
+    def _build_end_screen(self, title, title_color, elapsed_sec):
+        surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        surf.fill((0, 0, 0, 160))
+        title_surf, title_rect = self._font_large.render(title, title_color)
+        surf.blit(title_surf, ((WIDTH - title_rect.width) // 2, HEIGHT // 2 - 100))
+        m, s = divmod(elapsed_sec, 60)
+        time_surf, time_rect = self._font.render(f"Time survived: {m}:{s:02d}", (200, 200, 200))
+        surf.blit(time_surf, ((WIDTH - time_rect.width) // 2, HEIGHT // 2))
+        hint_surf, hint_rect = self._font.render("Press R to restart", (160, 160, 160))
+        surf.blit(hint_surf, ((WIDTH - hint_rect.width) // 2, HEIGHT // 2 + 44))
+        return surf
 
     def draw(self, surface, player, elapsed=0.0):
         # Timer — top-center
@@ -172,5 +172,18 @@ class HUD:
 
         surface.blit(self._overlay_surf, (0, 0))
 
-    def draw_game_over(self, surface):
+    def draw_game_over(self, surface, elapsed):
+        elapsed_sec = int(elapsed)
+        if self._cached_game_over_elapsed != elapsed_sec:
+            self._game_over_surf = self._build_end_screen(
+                "GAME OVER", (220, 60, 60), elapsed_sec)
+            self._cached_game_over_elapsed = elapsed_sec
         surface.blit(self._game_over_surf, (0, 0))
+
+    def draw_win_screen(self, surface, elapsed):
+        elapsed_sec = int(elapsed)
+        if self._cached_win_elapsed != elapsed_sec:
+            self._win_surf = self._build_end_screen(
+                "YOU SURVIVED", (220, 200, 40), elapsed_sec)
+            self._cached_win_elapsed = elapsed_sec
+        surface.blit(self._win_surf, (0, 0))
