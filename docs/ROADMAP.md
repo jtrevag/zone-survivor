@@ -60,13 +60,13 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
-## Milestone 7 — Win Condition & Polish Pass
-- [ ] 20-minute survival timer on HUD
-- [ ] Win screen on timer completion
-- [ ] Death screen shows time survived
-- [ ] Restart works cleanly from both screens
-- [ ] Basic sound effects (gunshot, reload, hit, death)
-- [ ] Screen flash on player hit
+## Milestone 7 — Win Condition & Polish Pass ✓
+- [x] 20-minute survival timer on HUD
+- [x] Win screen on timer completion
+- [x] Death screen shows time survived
+- [x] Restart works cleanly from both screens
+- [x] Basic sound effects (gunshot, reload, hit, death)
+- [x] Screen flash on player hit
 
 ---
 

@@ -4,6 +4,17 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v0.8 — 2026-06-10
+- Milestone 7: win condition & polish
+- `systems/wave_manager.py`: added `is_complete` property — returns `True` when elapsed >= `WIN_TIME` (1200s)
+- `entities/player.py`: added `hit_flash_timer` (counts down from `HIT_FLASH_DURATION` on damage), `just_hit` bool (sound trigger, cleared by main loop), `reload_complete` bool (sound trigger, set when reload finishes, cleared by main loop)
+- `systems/sound_manager.py`: new `SoundManager` — generates 4 synthetic sounds at init via sine wave / frequency-sweep PCM (no audio files); exposes `play_gunshot()`, `play_reload()`, `play_hit()`, `play_death()`
+- `ui/hud.py`: replaced static `_build_game_over_surf` with lazy `_build_end_screen(title, color, elapsed_sec)` shared by both screens; `draw_game_over(surface, elapsed)` now shows time survived; new `draw_win_screen(surface, elapsed)` — "YOU SURVIVED" in gold with time survived
+- `main.py`: `game_won` state added; `pygame.mixer.pre_init()` before `pygame.init()`; `SoundManager` instantiated once; pre-allocated `_flash_surf` for hit flash; R key restarts from both game-over and win screens; gunshot/hit/reload/death sounds wired to events; hit flash overlay scaled by remaining `hit_flash_timer`; update gated on `not game_over and not game_won`
+- `settings.py`: added `WIN_TIME=1200.0`, `HIT_FLASH_DURATION=0.15`, `HIT_FLASH_COLOR`, `HIT_FLASH_ALPHA_MAX=100`, `SOUND_SAMPLE_RATE`, `SOUND_CHANNELS`, `SOUND_BUFFER_SIZE`
+- Tests: `tests/test_win_condition.py` (4), `tests/test_player_signals.py` (8), `tests/test_sound_manager.py` (5) — 26 total passing
+- Docs: `ROADMAP.md` M7 checked off
+
 ## v0.7 — 2026-06-10
 - Milestone 6: wave scaling
 - `systems/wave_manager.py`: new `WaveManager` — tracks elapsed game time, exposes `params` property with `spawn_interval`, `mutant_ratio`, and `hp_mult` derived from `WAVE_TABLE`; module-level assertion enforces table is sorted ascending; active row cached in `update()` (O(1) per frame); fresh instance created per game (no reset method)
