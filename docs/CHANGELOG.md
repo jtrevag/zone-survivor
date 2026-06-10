@@ -4,6 +4,13 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v0.5.1 — 2026-06-10
+- Post-review fixes and cleanup
+- `entities/enemy.py`: `_fire_timer` now resets to 0 when Bandit resumes chasing — prevents premature fire on re-entry to firing mode; extracted `Enemy` base class with shared `take_damage()`; Bandit uses precomputed `BANDIT_PREFERRED_RANGE_SQ` / `BANDIT_RESUME_CHASE_RANGE_SQ`; Bandit registers projectiles explicitly instead of relying on constructor side-effects
+- `entities/projectile.py`: extracted `Projectile` base class with shared `update()` boundary logic; `Bullet` and `BanditProjectile` inherit from it; `BanditProjectile` no longer self-registers into groups (caller registers, consistent with `Bullet`)
+- `settings.py`: added `BANDIT_PREFERRED_RANGE_SQ` and `BANDIT_RESUME_CHASE_RANGE_SQ` as precomputed constants
+- `systems/spawner.py`: spawn ratio exposed as `mutant_ratio=0.5` parameter — M6 wave scaling can pass a time-based value without refactoring
+
 ## v0.5 — 2026-06-09
 - Milestone 4: second enemy (Bandit)
 - `entities/enemy.py`: `Bandit` class — blue 24×24 rect, 60 px/s, 80 HP (2 player shots); closes to 250 px preferred range then stops and fires; resumes chase if player backs past 300 px (hysteresis)

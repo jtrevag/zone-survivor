@@ -3,11 +3,21 @@ from settings import (
     MUTANT_COLOR, MUTANT_SIZE, MUTANT_SPEED, MUTANT_MAX_HP,
     MUTANT_CONTACT_DAMAGE, MUTANT_CONTACT_COOLDOWN,
     BANDIT_COLOR, BANDIT_SIZE, BANDIT_SPEED, BANDIT_MAX_HP,
-    BANDIT_PREFERRED_RANGE, BANDIT_RESUME_CHASE_RANGE, BANDIT_FIRE_INTERVAL,
+    BANDIT_PREFERRED_RANGE_SQ, BANDIT_RESUME_CHASE_RANGE_SQ, BANDIT_FIRE_INTERVAL,
 )
+from entities.projectile import BanditProjectile
 
 
-class Mutant(pygame.sprite.Sprite):
+class Enemy(pygame.sprite.Sprite):
+    def take_damage(self, amount):
+        if self.hp <= 0:
+            return
+        self.hp = max(0, self.hp - amount)
+        if self.hp <= 0:
+            self.kill()
+
+
+class Mutant(Enemy):
     def __init__(self, pos):
         super().__init__()
         self.pos = pygame.math.Vector2(pos)
@@ -15,13 +25,6 @@ class Mutant(pygame.sprite.Sprite):
         self._contact_cooldown = 0.0
         self.rect = pygame.Rect(0, 0, MUTANT_SIZE, MUTANT_SIZE)
         self.rect.center = (int(self.pos.x), int(self.pos.y))
-
-    def take_damage(self, amount):
-        if self.hp <= 0:
-            return
-        self.hp = max(0, self.hp - amount)
-        if self.hp <= 0:
-            self.kill()
 
     def update(self, dt, player=None):
         if player is None or player.dead:
@@ -45,49 +48,42 @@ class Mutant(pygame.sprite.Sprite):
         pygame.draw.rect(surface, MUTANT_COLOR, self.rect)
 
 
-class Bandit(pygame.sprite.Sprite):
-    def __init__(self, pos, all_sprites, bandit_projectiles):
+class Bandit(Enemy):
+    def __init__(self, pos, all_sprites, enemy_projectiles):
         super().__init__()
         self.pos = pygame.math.Vector2(pos)
         self.hp = BANDIT_MAX_HP
         self._all_sprites = all_sprites
-        self._bandit_projectiles = bandit_projectiles
+        self._enemy_projectiles = enemy_projectiles
         self._chasing = True
         self._fire_timer = 0.0
         self.rect = pygame.Rect(0, 0, BANDIT_SIZE, BANDIT_SIZE)
         self.rect.center = (int(self.pos.x), int(self.pos.y))
 
-    def take_damage(self, amount):
-        if self.hp <= 0:
-            return
-        self.hp = max(0, self.hp - amount)
-        if self.hp <= 0:
-            self.kill()
-
     def update(self, dt, player=None):
         if player is None or player.dead:
             return
 
-        from entities.projectile import BanditProjectile
-
         to_player = player.pos - self.pos
-        dist = to_player.length()
+        dist_sq = to_player.length_squared()
+        if dist_sq == 0:
+            return
 
-        if self._chasing and dist <= BANDIT_PREFERRED_RANGE:
+        if self._chasing and dist_sq <= BANDIT_PREFERRED_RANGE_SQ:
             self._chasing = False
-        elif not self._chasing and dist > BANDIT_RESUME_CHASE_RANGE:
+        elif not self._chasing and dist_sq > BANDIT_RESUME_CHASE_RANGE_SQ:
             self._chasing = True
+            self._fire_timer = 0.0
 
         if self._chasing:
-            if dist > 0:
-                self.pos += to_player / dist * BANDIT_SPEED * dt
+            self.pos += to_player.normalize() * BANDIT_SPEED * dt
         else:
             self._fire_timer += dt
             if self._fire_timer >= BANDIT_FIRE_INTERVAL:
                 self._fire_timer = 0.0
-                if dist > 0:
-                    direction = to_player / dist
-                    BanditProjectile(self.pos, direction, self._all_sprites, self._bandit_projectiles)
+                proj = BanditProjectile(self.pos, to_player.normalize())
+                self._all_sprites.add(proj)
+                self._enemy_projectiles.add(proj)
 
         self.rect.center = (int(self.pos.x), int(self.pos.y))
 
