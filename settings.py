@@ -52,6 +52,8 @@ WAVE_TABLE = [
     Wave(minute=10, spawn_interval=0.7, mutant_ratio=0.60, hp_mult=2.0),
 ]
 
+WIN_TIME = 1200.0  # 20 minutes in seconds
+
 # Bullet
 BULLET_SPEED = 500        # px/s
 BULLET_RADIUS = 4

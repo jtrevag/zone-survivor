@@ -1,4 +1,4 @@
-from settings import WAVE_TABLE
+from settings import WAVE_TABLE, WIN_TIME
 
 assert all(
     WAVE_TABLE[i].minute < WAVE_TABLE[i + 1].minute for i in range(len(WAVE_TABLE) - 1)
@@ -21,6 +21,10 @@ class WaveManager:
     @property
     def elapsed(self):
         return self._elapsed
+
+    @property
+    def is_complete(self):
+        return self._elapsed >= WIN_TIME
 
     @property
     def params(self):
