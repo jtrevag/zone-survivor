@@ -34,7 +34,7 @@ The core skill mechanic of the game. Rules:
 ### Enemy — Bandit
 - Aggro range: full screen (always aware of player)
 - Preferred range: ~250px from player
-- Fires a projectile every 2.5 seconds when within preferred range
+- Fires a projectile every 1.25 seconds when within preferred range
 - Bandit projectiles travel slower than player bullets
 - HP: 80 (2 shots at base damage)
 
@@ -99,10 +99,3 @@ Enemies spawn at random points along arena edges, outside player view when possi
 - Game-over overlay displayed: "GAME OVER" + "Press R to restart"
 - R key from game-over state resets all game objects (player, enemies, bullets, spawner) to initial state
 - ESC still quits from game-over state
-
----
-
-## Spawning (Milestone 3)
-- Mutants only (Bandits added in M4)
-- Spawn rate: 1 Mutant every 3 seconds
-- Spawn position: random point along arena edge (top/bottom/left/right wall)

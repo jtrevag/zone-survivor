@@ -27,8 +27,7 @@ stalker-survivor/
 │   └── projectile.py
 ├── systems/
 │   ├── spawner.py
-│   ├── wave_manager.py
-│   └── xp_system.py
+│   └── wave_manager.py
 ├── ui/
 │   └── hud.py
 └── docs/
