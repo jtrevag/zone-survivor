@@ -33,8 +33,14 @@ MUTANT_MAX_HP = 35
 MUTANT_CONTACT_DAMAGE = 15
 MUTANT_CONTACT_COOLDOWN = 0.5  # seconds
 
-# Spawner
-SPAWN_INTERVAL = 3.0      # seconds (wave 0-1 rate)
+# Wave scaling table: (minute_threshold, spawn_interval, mutant_ratio, bandit_hp_mult)
+WAVE_TABLE = [
+    (0,  3.0, 0.20, 1.0),
+    (2,  2.0, 0.30, 1.0),
+    (4,  1.5, 0.40, 1.2),
+    (6,  1.0, 0.50, 1.5),
+    (10, 0.7, 0.60, 2.0),
+]
 
 # Bullet
 BULLET_SPEED = 500        # px/s

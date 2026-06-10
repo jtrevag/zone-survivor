@@ -53,10 +53,10 @@ class Mutant(Enemy):
 
 
 class Bandit(Enemy):
-    def __init__(self, pos, all_sprites, enemy_projectiles):
+    def __init__(self, pos, all_sprites, enemy_projectiles, hp_mult=1.0):
         super().__init__()
         self.pos = pygame.math.Vector2(pos)
-        self.hp = BANDIT_MAX_HP
+        self.hp = int(BANDIT_MAX_HP * hp_mult)
         self.xp_value = BANDIT_XP_VALUE
         self._all_sprites = all_sprites
         self._enemy_projectiles = enemy_projectiles
