@@ -1,5 +1,5 @@
 # Stalker Survivor — Game Design Document
-> Version: 0.1 | Status: Pre-production
+> Version: 0.6 | Status: In development (M5 complete)
 
 ## Core Fantasy
 You are a lone survivor in an irradiated wasteland, methodically holding back an endless tide. Victory comes from positioning and resource discipline — not reflexes. The primary skill expression is **reload timing**: deciding when to reload under pressure is the central tension of every encounter.
