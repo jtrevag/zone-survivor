@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 # Window / loop
 WIDTH = 1280
 HEIGHT = 720
@@ -32,8 +34,6 @@ MUTANT_SPEED = 140        # px/s
 MUTANT_MAX_HP = 35
 MUTANT_CONTACT_DAMAGE = 15
 MUTANT_CONTACT_COOLDOWN = 0.5  # seconds
-
-from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
