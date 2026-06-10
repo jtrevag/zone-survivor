@@ -54,6 +54,10 @@ WAVE_TABLE = [
 
 WIN_TIME = 1200.0  # 20 minutes in seconds
 
+HIT_FLASH_DURATION = 0.15   # seconds
+HIT_FLASH_COLOR = (220, 40, 40)
+HIT_FLASH_ALPHA_MAX = 100   # 0–255
+
 # Bullet
 BULLET_SPEED = 500        # px/s
 BULLET_RADIUS = 4

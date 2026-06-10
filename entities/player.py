@@ -7,6 +7,7 @@ from settings import (
     XP_PER_LEVEL_BASE,
     UPGRADE_MAG_BONUS, UPGRADE_RELOAD_MULT, UPGRADE_DAMAGE_MULT,
     UPGRADE_SPEED_MULT, UPGRADE_HP_BONUS, UPGRADE_FIRE_RATE_MULT,
+    HIT_FLASH_DURATION,
 )
 from entities.projectile import Bullet
 
@@ -45,12 +46,18 @@ class Player(pygame.sprite.Sprite):
         self.xp_to_next = XP_PER_LEVEL_BASE
         self.pending_level_up = False
 
+        self.hit_flash_timer = 0.0
+        self.just_hit = False
+        self.reload_complete = False
+
     def take_damage(self, amount):
         if self.dead:
             return
         self.hp = max(0, self.hp - amount)
         if self.hp <= 0:
             self.dead = True
+        self.hit_flash_timer = HIT_FLASH_DURATION
+        self.just_hit = True
 
     def collect_xp(self, amount):
         self.xp += amount
@@ -110,11 +117,15 @@ class Player(pygame.sprite.Sprite):
         if self._shot_cooldown > 0:
             self._shot_cooldown = max(0.0, self._shot_cooldown - dt)
 
+        if self.hit_flash_timer > 0:
+            self.hit_flash_timer = max(0.0, self.hit_flash_timer - dt)
+
         if self.reloading:
             self.reload_progress = min(1.0, self.reload_progress + dt / self.reload_time)
             if self.reload_progress >= 1.0:
                 self.ammo = self.mag_size
                 self.reloading = False
+                self.reload_complete = True
 
     def draw(self, surface):
         center = self.rect.center
