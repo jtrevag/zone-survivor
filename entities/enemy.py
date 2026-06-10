@@ -1,9 +1,10 @@
 import pygame
 from settings import (
     MUTANT_COLOR, MUTANT_SIZE, MUTANT_SPEED, MUTANT_MAX_HP,
-    MUTANT_CONTACT_DAMAGE, MUTANT_CONTACT_COOLDOWN,
+    MUTANT_CONTACT_DAMAGE, MUTANT_CONTACT_COOLDOWN, MUTANT_XP_VALUE,
     BANDIT_COLOR, BANDIT_SIZE, BANDIT_SPEED, BANDIT_MAX_HP,
     BANDIT_PREFERRED_RANGE_SQ, BANDIT_RESUME_CHASE_RANGE_SQ, BANDIT_FIRE_INTERVAL,
+    BANDIT_XP_VALUE,
 )
 from entities.projectile import BanditProjectile
 
@@ -11,10 +12,12 @@ from entities.projectile import BanditProjectile
 class Enemy(pygame.sprite.Sprite):
     def take_damage(self, amount):
         if self.hp <= 0:
-            return
+            return False
         self.hp = max(0, self.hp - amount)
         if self.hp <= 0:
             self.kill()
+            return True
+        return False
 
 
 class Mutant(Enemy):
@@ -22,6 +25,7 @@ class Mutant(Enemy):
         super().__init__()
         self.pos = pygame.math.Vector2(pos)
         self.hp = MUTANT_MAX_HP
+        self.xp_value = MUTANT_XP_VALUE
         self._contact_cooldown = 0.0
         self.rect = pygame.Rect(0, 0, MUTANT_SIZE, MUTANT_SIZE)
         self.rect.center = (int(self.pos.x), int(self.pos.y))
@@ -53,6 +57,7 @@ class Bandit(Enemy):
         super().__init__()
         self.pos = pygame.math.Vector2(pos)
         self.hp = BANDIT_MAX_HP
+        self.xp_value = BANDIT_XP_VALUE
         self._all_sprites = all_sprites
         self._enemy_projectiles = enemy_projectiles
         self._chasing = True

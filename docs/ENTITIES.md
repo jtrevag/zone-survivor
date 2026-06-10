@@ -30,7 +30,7 @@
 | move_speed | 60 px/s |
 | max_hp | 80 |
 | preferred_range | 250px |
-| fire_interval | 2.5s |
+| fire_interval | 1.25s |
 | projectile_speed | 180 px/s |
 | projectile_damage | 12 |
 | xp_value | 10 |

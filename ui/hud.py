@@ -2,38 +2,65 @@ import pygame
 import pygame.freetype
 from settings import (
     WIDTH, HEIGHT,
-    HUD_FONT_SIZE, HUD_FONT_SIZE_LARGE,
+    HUD_FONT_SIZE, HUD_FONT_SIZE_LARGE, HUD_FONT_SIZE_SMALL,
     HUD_BAR_WIDTH, HUD_BAR_HEIGHT, HUD_MARGIN,
     HUD_COLOR_AMMO, HUD_COLOR_RELOAD_BG, HUD_COLOR_RELOAD_FILL,
     HUD_COLOR_HP_BG, HUD_COLOR_HP_FILL,
-    PLAYER_MAG_SIZE,
+    HUD_COLOR_XP_BG, HUD_COLOR_XP_FILL,
+    HUD_COLOR_CARD_BG, HUD_COLOR_CARD_BORDER, HUD_COLOR_CARD_HOVER,
+    HUD_UPGRADE_CARD_W, HUD_UPGRADE_CARD_H, HUD_UPGRADE_CARD_GAP,
 )
 
 
 class HUD:
     def __init__(self):
         self._font = pygame.freetype.Font(None, HUD_FONT_SIZE)
+        self._font_small = pygame.freetype.Font(None, HUD_FONT_SIZE_SMALL)
         self._font_large = pygame.freetype.Font(None, HUD_FONT_SIZE_LARGE)
 
+        _, _ref = self._font.render("A", HUD_COLOR_AMMO)
+        _line_h = _ref.height
+
         # HP bar — top-left
-        _, hp_label_rect = self._font.render("HP: 100", HUD_COLOR_AMMO)
         self._hp_bar_rect = pygame.Rect(
             HUD_MARGIN,
-            HUD_MARGIN + hp_label_rect.height + 4,
+            HUD_MARGIN + _line_h + 4,
             HUD_BAR_WIDTH, HUD_BAR_HEIGHT,
         )
         self._cached_hp = -1
         self._hp_label = None
 
+        # XP bar — below HP bar
+        xp_label_y = self._hp_bar_rect.y + HUD_BAR_HEIGHT + 8
+        self._xp_label_y = xp_label_y
+        self._xp_bar_rect = pygame.Rect(
+            HUD_MARGIN,
+            xp_label_y + _line_h + 4,
+            HUD_BAR_WIDTH, HUD_BAR_HEIGHT,
+        )
+        self._cached_level = -1
+        self._xp_label = None
+
         # Ammo label and reload bar — bottom-left
-        _, ammo_label_rect = self._font.render(f"0 / {PLAYER_MAG_SIZE}", HUD_COLOR_AMMO)
         bar_y = HEIGHT - HUD_MARGIN - HUD_BAR_HEIGHT
-        self._label_y = bar_y - ammo_label_rect.height - 4
-        self._cached_ammo = -1
+        self._label_y = bar_y - _line_h - 4
+        self._cached_ammo_key = None
         self._label = None
         self._bar_rect = pygame.Rect(HUD_MARGIN, bar_y, HUD_BAR_WIDTH, HUD_BAR_HEIGHT)
 
-        # Game-over overlay — pre-built once, blit whole surface each call
+        # Level-up card rects (fixed positions, computed once)
+        total_w = 3 * HUD_UPGRADE_CARD_W + 2 * HUD_UPGRADE_CARD_GAP
+        start_x = (WIDTH - total_w) // 2
+        card_y = HEIGHT // 2 - HUD_UPGRADE_CARD_H // 2 + 40
+        self._card_rects = [
+            pygame.Rect(start_x + i * (HUD_UPGRADE_CARD_W + HUD_UPGRADE_CARD_GAP),
+                        card_y, HUD_UPGRADE_CARD_W, HUD_UPGRADE_CARD_H)
+            for i in range(3)
+        ]
+
+        # Pre-allocated surfaces
+        self._overlay_surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        self._cached_level_up_key = None
         self._game_over_surf = self._build_game_over_surf()
 
     def _build_game_over_surf(self):
@@ -67,14 +94,68 @@ class HUD:
         self._draw_bar(surface, self._hp_bar_rect, player.hp / player.max_hp,
                        HUD_COLOR_HP_FILL, HUD_COLOR_HP_BG)
 
+        # XP label + bar
+        if player.level != self._cached_level:
+            self._xp_label, _ = self._font.render(f"LVL {player.level}", HUD_COLOR_AMMO)
+            self._cached_level = player.level
+        surface.blit(self._xp_label, (HUD_MARGIN, self._xp_label_y))
+        xp_ratio = player.xp / player.xp_to_next if player.xp_to_next > 0 else 0.0
+        self._draw_bar(surface, self._xp_bar_rect, xp_ratio, HUD_COLOR_XP_FILL, HUD_COLOR_XP_BG)
+
         # Ammo label + reload bar
-        if player.ammo != self._cached_ammo:
-            self._label, _ = self._font.render(f"{player.ammo} / {PLAYER_MAG_SIZE}", HUD_COLOR_AMMO)
-            self._cached_ammo = player.ammo
+        ammo_key = (player.ammo, player.mag_size)
+        if ammo_key != self._cached_ammo_key:
+            self._label, _ = self._font.render(f"{player.ammo} / {player.mag_size}", HUD_COLOR_AMMO)
+            self._cached_ammo_key = ammo_key
         surface.blit(self._label, (HUD_MARGIN, self._label_y))
         reload_ratio = player.reload_progress if player.reloading else 0.0
         self._draw_bar(surface, self._bar_rect, reload_ratio,
                        HUD_COLOR_RELOAD_FILL, HUD_COLOR_RELOAD_BG)
+
+    def hovered_upgrade(self, pos):
+        """Return index (0-2) of card under pos, or -1."""
+        for i, rect in enumerate(self._card_rects):
+            if rect.collidepoint(pos):
+                return i
+        return -1
+
+    def draw_level_up(self, surface, upgrades, mouse_pos):
+        hover_idx = self.hovered_upgrade(mouse_pos)
+        cache_key = (id(upgrades), hover_idx)
+        if cache_key != self._cached_level_up_key:
+            self._cached_level_up_key = cache_key
+            self._overlay_surf.fill((0, 0, 0, 180))
+
+            # Title
+            title_surf, title_rect = self._font_large.render("LEVEL UP", (255, 220, 80))
+            self._overlay_surf.blit(title_surf, (
+                (WIDTH - title_rect.width) // 2,
+                self._card_rects[0].y - title_rect.height - 24,
+            ))
+
+            # Cards
+            for i, (rect, upgrade) in enumerate(zip(self._card_rects, upgrades)):
+                hovered = i == hover_idx
+                pygame.draw.rect(self._overlay_surf, HUD_COLOR_CARD_BG, rect, border_radius=8)
+                border_color = HUD_COLOR_CARD_HOVER if hovered else HUD_COLOR_CARD_BORDER
+                pygame.draw.rect(self._overlay_surf, border_color, rect, width=2, border_radius=8)
+
+                key_surf, key_rect = self._font_small.render(str(i + 1), (160, 160, 200))
+                self._overlay_surf.blit(key_surf, (rect.right - key_rect.width - 8, rect.y + 8))
+
+                name_surf, name_rect = self._font.render(upgrade['name'], (220, 220, 220))
+                self._overlay_surf.blit(name_surf, (rect.x + 12, rect.y + 20))
+
+                desc_surf, _ = self._font_small.render(upgrade['desc'], (160, 160, 160))
+                self._overlay_surf.blit(desc_surf, (rect.x + 12, rect.y + 20 + name_rect.height + 8))
+
+            # Hint below cards
+            hint_surf, hint_rect = self._font_small.render(
+                "Press 1 / 2 / 3  or  click a card", (140, 140, 140))
+            hint_y = self._card_rects[0].y + HUD_UPGRADE_CARD_H + 12
+            self._overlay_surf.blit(hint_surf, ((WIDTH - hint_rect.width) // 2, hint_y))
+
+        surface.blit(self._overlay_surf, (0, 0))
 
     def draw_game_over(self, surface):
         surface.blit(self._game_over_surf, (0, 0))

@@ -4,6 +4,18 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v0.6 — 2026-06-10
+- Milestone 5: XP orbs, leveling, and upgrade selection
+- `entities/xp_orb.py`: new `XPOrb` sprite — 10s lifetime, proximity pickup at 20px radius, green circle r=5; calls `player.collect_xp()` on contact and self-removes via `kill()`
+- `entities/enemy.py`: `take_damage()` now returns `True` on kill (for orb spawning), `False` otherwise; `Mutant` and `Bandit` gain `xp_value` attribute (5 and 10 respectively)
+- `entities/player.py`: combat stats (`damage`, `move_speed`, `mag_size`, `reload_time`, `shot_cooldown_base`) promoted to mutable instance vars; `collect_xp()` accumulates XP and sets `pending_level_up` flag; `apply_upgrade()` applies one of 6 upgrades to live stats
+- `entities/projectile.py`: `Bullet` accepts optional `damage` parameter so player's mutable damage stat is passed through
+- `ui/hud.py`: XP bar + level label added below HP bar; ammo label reads `player.mag_size` (not hardcoded constant); `draw_level_up()` renders semi-transparent overlay with 3 upgrade cards, keyboard (1/2/3) and click input; `hovered_upgrade()` hit-tests card rects
+- `main.py`: orbs spawned on enemy kill; level-up pause state (`level_up` flag) freezes `all_sprites.update` and collision handling; upgrade selection via keyboard or click; `BANDIT_FIRE_INTERVAL` halved (2.5→1.25s) for better pacing
+- `settings.py`: +XP orb constants, enemy XP values, XP/level formula, 6 upgrade multipliers, `UPGRADES` list, HUD card/XP colors
+- Code review fix: `collect_xp` uses `while` loop (not `if`) so multi-threshold XP overflows handle correctly; `xp_orbs` group removed (dead state — pickup handled by proximity in `XPOrb.update`)
+- Docs: `ROADMAP.md` M5 checked off
+
 ## v0.5.1 — 2026-06-10
 - Post-review fixes and cleanup
 - `entities/enemy.py`: `_fire_timer` now resets to 0 when Bandit resumes chasing — prevents premature fire on re-entry to firing mode; extracted `Enemy` base class with shared `take_damage()`; Bandit uses precomputed `BANDIT_PREFERRED_RANGE_SQ` / `BANDIT_RESUME_CHASE_RANGE_SQ`; Bandit registers projectiles explicitly instead of relying on constructor side-effects

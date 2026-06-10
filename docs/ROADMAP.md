@@ -43,12 +43,12 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 ---
 
 ## Milestone 5 — XP & Leveling
-- [ ] Enemies drop XP orbs on death
-- [ ] Player collects orbs on contact
-- [ ] XP bar on HUD
-- [ ] Level-up screen pauses game
-- [ ] 3 random upgrades offered, player picks one
-- [ ] Upgrades apply correctly to player stats
+- [x] Enemies drop XP orbs on death
+- [x] Player collects orbs on contact
+- [x] XP bar on HUD
+- [x] Level-up screen pauses game
+- [x] 3 random upgrades offered, player picks one
+- [x] Upgrades apply correctly to player stats
 
 ---
 

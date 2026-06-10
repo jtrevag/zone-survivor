@@ -55,7 +55,17 @@ The core skill mechanic of the game. Rules:
 - Player collects orbs by walking over them
 - XP required per level: `50 * level` (level 1→2 = 50 XP, 2→3 = 100 XP, etc.)
 - On level-up: game pauses, upgrade screen shown, 3 random upgrades offered
-- Player picks one, game resumes
+- Player picks one (keyboard 1/2/3 or click), game resumes
+- Upgrades stack; each is drawn from this pool:
+
+| ID | Name | Effect |
+|----|------|--------|
+| mag | Larger Mag | +2 rounds |
+| reload | Faster Reload | -20% reload time |
+| damage | More Damage | +25% damage |
+| speed | Move Speed | +10% speed |
+| hp | Max HP | +20 HP, heals 20 |
+| fire_rate | Fire Rate | -15% shot cooldown |
 
 ---
 
