@@ -62,6 +62,18 @@ Keep docs in sync with code at all times — they are the source of truth, not t
 - If a design decision is made during a session (e.g. tuning a value, changing behavior), update the doc immediately — do not defer to a later pass
 - `docs/GDD.md` reflects the current intended game, not the original spec
 
+## SDLC Process
+Follow these steps in order for every milestone or feature — do not skip or reorder:
+
+1. **Implement** — minimal, readable code following project standards
+2. **Test (first pass)** — launch the game, let the user play-test; wait for approval before continuing
+3. **Simplify** — run `/simplify` to catch over-engineering
+4. **Code review** — run `/code-review` to catch bugs
+5. **Test (final)** — present to user for final play-test; wait for approval
+6. **PR** — create a pull request for the milestone
+
+Two human checkpoints (steps 2 and 5) are required every milestone. Never advance past a step without user sign-off.
+
 ## Git
 - Commit after each milestone is complete
 - Format: `feat: milestone N — <description>`

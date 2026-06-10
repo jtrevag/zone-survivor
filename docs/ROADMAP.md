@@ -34,11 +34,11 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
-## Milestone 4 — Second Enemy (Bandit)
-- [ ] Bandits spawn and pathfind toward player
-- [ ] Bandits stop at preferred range and fire
-- [ ] Bandit projectiles travel and damage player
-- [ ] Both enemy types active simultaneously
+## Milestone 4 — Second Enemy (Bandit) ✓
+- [x] Bandits spawn and pathfind toward player
+- [x] Bandits stop at preferred range and fire
+- [x] Bandit projectiles travel and damage player
+- [x] Both enemy types active simultaneously
 
 ---
 

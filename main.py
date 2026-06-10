@@ -9,10 +9,11 @@ def new_game():
     all_sprites = pygame.sprite.Group()
     enemies = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
+    bandit_projectiles = pygame.sprite.Group()
     player = Player()
     all_sprites.add(player)
     spawner = Spawner()
-    return player, all_sprites, enemies, bullets, spawner
+    return player, all_sprites, enemies, bullets, bandit_projectiles, spawner
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
     clock = pygame.time.Clock()
     hud = HUD()
 
-    player, all_sprites, enemies, bullets, spawner = new_game()
+    player, all_sprites, enemies, bullets, bandit_projectiles, spawner = new_game()
     game_over = False
 
     running = True
@@ -34,7 +35,7 @@ def main():
                 running = False
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                 if game_over:
-                    player, all_sprites, enemies, bullets, spawner = new_game()
+                    player, all_sprites, enemies, bullets, bandit_projectiles, spawner = new_game()
                     game_over = False
                 else:
                     player.try_reload()
@@ -46,12 +47,15 @@ def main():
 
         if not game_over:
             all_sprites.update(dt, player)
-            spawner.update(dt, all_sprites, enemies)
+            spawner.update(dt, all_sprites, enemies, bandit_projectiles)
 
             hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
             for bullet, hit_enemies in hits.items():
                 for enemy in hit_enemies:
                     enemy.take_damage(bullet.damage)
+
+            for proj in pygame.sprite.spritecollide(player, bandit_projectiles, True):
+                player.take_damage(proj.damage)
 
             if player.dead:
                 game_over = True

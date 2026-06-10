@@ -4,6 +4,17 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v0.5 — 2026-06-09
+- Milestone 4: second enemy (Bandit)
+- `entities/enemy.py`: `Bandit` class — blue 24×24 rect, 60 px/s, 80 HP (2 player shots); closes to 250 px preferred range then stops and fires; resumes chase if player backs past 300 px (hysteresis)
+- `entities/projectile.py`: `BanditProjectile` class — orange circle r=3, 180 px/s, 12 damage; self-registers to `all_sprites` and `bandit_projectiles` on spawn
+- `systems/spawner.py`: now spawns Mutant or Bandit at 50/50 odds each tick; receives `bandit_projectiles` group to pass to Bandit constructor
+- `main.py`: `new_game()` now returns `bandit_projectiles` group; player↔bandit projectile collision kills projectile and calls `player.take_damage(proj.damage)` each frame
+- `settings.py`: +11 Bandit/BanditProjectile constants
+- Docs: `ROADMAP.md` M4 checked off
+
+---
+
 ## v0.4 — 2026-06-09
 - Milestone 3: first enemy (Mutant)
 - `entities/enemy.py`: Mutant class — red 20×20 rect, 140 px/s, 35 HP, chases player directly, deals 15 contact damage per 0.5s
