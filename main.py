@@ -70,7 +70,7 @@ def main():
             spawner.update(dt, all_sprites, enemies, enemy_projectiles,
                            spawn_interval=wp['spawn_interval'],
                            mutant_ratio=wp['mutant_ratio'],
-                           bandit_hp_mult=wp['bandit_hp_mult'])
+                           hp_mult=wp['hp_mult'])
 
             hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
             for bullet, hit_enemies in hits.items():
@@ -92,7 +92,7 @@ def main():
         screen.fill(BACKGROUND_COLOR)
         for entity in all_sprites:
             entity.draw(screen)
-        hud.draw(screen, player)
+        hud.draw(screen, player, wave_manager.elapsed)
         if level_up:
             hud.draw_level_up(screen, pending_upgrades, pygame.mouse.get_pos())
         if game_over:

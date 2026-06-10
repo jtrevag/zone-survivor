@@ -33,7 +33,7 @@ MUTANT_MAX_HP = 35
 MUTANT_CONTACT_DAMAGE = 15
 MUTANT_CONTACT_COOLDOWN = 0.5  # seconds
 
-# Wave scaling table: (minute_threshold, spawn_interval, mutant_ratio, bandit_hp_mult)
+# Wave scaling table: (minute_threshold, spawn_interval, mutant_ratio, hp_mult)
 WAVE_TABLE = [
     (0,  3.0, 0.20, 1.0),
     (2,  2.0, 0.30, 1.0),

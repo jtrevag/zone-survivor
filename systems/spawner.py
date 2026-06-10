@@ -8,15 +8,15 @@ class Spawner:
         self._timer = 0.0
 
     def update(self, dt, all_sprites, enemies, enemy_projectiles,
-               spawn_interval=3.0, mutant_ratio=0.20, bandit_hp_mult=1.0):
+               spawn_interval, mutant_ratio, hp_mult):
         self._timer += dt
         if self._timer >= spawn_interval:
             self._timer -= spawn_interval
             pos = self._random_edge_pos()
             if random.random() < mutant_ratio:
-                enemy = Mutant(pos)
+                enemy = Mutant(pos, hp_mult=hp_mult)
             else:
-                enemy = Bandit(pos, all_sprites, enemy_projectiles, hp_mult=bandit_hp_mult)
+                enemy = Bandit(pos, all_sprites, enemy_projectiles, hp_mult=hp_mult)
             all_sprites.add(enemy)
             enemies.add(enemy)
 

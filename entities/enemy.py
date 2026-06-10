@@ -21,10 +21,10 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class Mutant(Enemy):
-    def __init__(self, pos):
+    def __init__(self, pos, hp_mult=1.0):
         super().__init__()
         self.pos = pygame.math.Vector2(pos)
-        self.hp = MUTANT_MAX_HP
+        self.hp = int(MUTANT_MAX_HP * hp_mult)
         self.xp_value = MUTANT_XP_VALUE
         self._contact_cooldown = 0.0
         self.rect = pygame.Rect(0, 0, MUTANT_SIZE, MUTANT_SIZE)
