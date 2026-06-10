@@ -11,7 +11,7 @@ class TestSoundManager(unittest.TestCase):
         with patch('pygame.mixer.pre_init'), \
              patch('pygame.mixer.Sound', return_value=MagicMock()) as mock_sound:
             from systems.sound_manager import SoundManager
-            sm = SoundManager()
+            SoundManager()
             self.assertEqual(mock_sound.call_count, 4)
 
     def test_play_gunshot_calls_play(self):
