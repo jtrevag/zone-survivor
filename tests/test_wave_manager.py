@@ -67,17 +67,18 @@ class TestWaveManagerParams(unittest.TestCase):
 
 class TestWaveTableSortAssertion(unittest.TestCase):
     def test_unsorted_table_raises_on_import(self):
+        from settings import Wave
         unsorted = [
-            (0,  3.0, 0.20, 1.0),
-            (4,  1.5, 0.40, 1.2),
-            (2,  2.0, 0.30, 1.0),  # out of order
+            Wave(minute=0,  spawn_interval=3.0, mutant_ratio=0.20, hp_mult=1.0),
+            Wave(minute=4,  spawn_interval=1.5, mutant_ratio=0.40, hp_mult=1.2),
+            Wave(minute=2,  spawn_interval=2.0, mutant_ratio=0.30, hp_mult=1.0),  # out of order
         ]
         import systems.wave_manager as wm_module
         with patch.object(wm_module, 'WAVE_TABLE', unsorted):
             # Re-check assertion manually since module is already loaded
             with self.assertRaises(AssertionError):
                 assert all(
-                    unsorted[i][0] < unsorted[i + 1][0]
+                    unsorted[i].minute < unsorted[i + 1].minute
                     for i in range(len(unsorted) - 1)
                 ), "WAVE_TABLE must be sorted ascending by minute threshold"
 
