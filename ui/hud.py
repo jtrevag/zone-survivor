@@ -58,6 +58,10 @@ class HUD:
             for i in range(3)
         ]
 
+        # Timer — top-center
+        self._cached_elapsed_sec = -1
+        self._timer_surf = None
+
         # Pre-allocated surfaces
         self._overlay_surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         self._cached_level_up_key = None
@@ -85,7 +89,18 @@ class HUD:
             fill_rect = pygame.Rect(bg_rect.x, bg_rect.y, fill_w, bg_rect.height)
             pygame.draw.rect(surface, fill_color, fill_rect, border_radius=3)
 
-    def draw(self, surface, player):
+    def draw(self, surface, player, elapsed=0.0):
+        # Timer — top-center
+        elapsed_sec = int(elapsed)
+        if elapsed_sec != self._cached_elapsed_sec:
+            m, s = divmod(elapsed_sec, 60)
+            self._timer_surf, _ = self._font.render(f"{m}:{s:02d}", HUD_COLOR_AMMO)
+            self._cached_elapsed_sec = elapsed_sec
+        surface.blit(self._timer_surf, (
+            (WIDTH - self._timer_surf.get_width()) // 2,
+            HUD_MARGIN,
+        ))
+
         # HP label + bar
         if player.hp != self._cached_hp:
             self._hp_label, _ = self._font.render(f"HP: {player.hp}", HUD_COLOR_AMMO)

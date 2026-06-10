@@ -33,8 +33,24 @@ MUTANT_MAX_HP = 35
 MUTANT_CONTACT_DAMAGE = 15
 MUTANT_CONTACT_COOLDOWN = 0.5  # seconds
 
-# Spawner
-SPAWN_INTERVAL = 3.0      # seconds (wave 0-1 rate)
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Wave:
+    minute: float
+    spawn_interval: float
+    mutant_ratio: float
+    hp_mult: float
+
+
+WAVE_TABLE = [
+    Wave(minute=0,  spawn_interval=3.0, mutant_ratio=0.20, hp_mult=1.0),
+    Wave(minute=2,  spawn_interval=2.0, mutant_ratio=0.30, hp_mult=1.0),
+    Wave(minute=4,  spawn_interval=1.5, mutant_ratio=0.40, hp_mult=1.2),
+    Wave(minute=6,  spawn_interval=1.0, mutant_ratio=0.50, hp_mult=1.5),
+    Wave(minute=10, spawn_interval=0.7, mutant_ratio=0.60, hp_mult=2.0),
+]
 
 # Bullet
 BULLET_SPEED = 500        # px/s

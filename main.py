@@ -4,6 +4,7 @@ from settings import WIDTH, HEIGHT, FPS, TITLE, BACKGROUND_COLOR, UPGRADES
 from entities.player import Player
 from entities.xp_orb import XPOrb
 from systems.spawner import Spawner
+from systems.wave_manager import WaveManager
 from ui.hud import HUD
 
 
@@ -15,7 +16,8 @@ def new_game():
     player = Player()
     all_sprites.add(player)
     spawner = Spawner()
-    return player, all_sprites, enemies, bullets, enemy_projectiles, spawner
+    wave_manager = WaveManager()
+    return player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager
 
 
 def main():
@@ -25,7 +27,7 @@ def main():
     clock = pygame.time.Clock()
     hud = HUD()
 
-    player, all_sprites, enemies, bullets, enemy_projectiles, spawner = new_game()
+    player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager = new_game()
     game_over = False
     level_up = False
     pending_upgrades = []
@@ -39,7 +41,7 @@ def main():
                 running = False
             elif game_over:
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                    player, all_sprites, enemies, bullets, enemy_projectiles, spawner = new_game()
+                    player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager = new_game()
                     game_over = False
             elif level_up:
                 if event.type == pygame.KEYDOWN:
@@ -62,8 +64,13 @@ def main():
                         bullets.add(bullet)
 
         if not game_over and not level_up:
+            wave_manager.update(dt)
+            wp = wave_manager.params
             all_sprites.update(dt, player)
-            spawner.update(dt, all_sprites, enemies, enemy_projectiles)
+            spawner.update(dt, all_sprites, enemies, enemy_projectiles,
+                           spawn_interval=wp['spawn_interval'],
+                           mutant_ratio=wp['mutant_ratio'],
+                           hp_mult=wp['hp_mult'])
 
             hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
             for bullet, hit_enemies in hits.items():
@@ -85,7 +92,7 @@ def main():
         screen.fill(BACKGROUND_COLOR)
         for entity in all_sprites:
             entity.draw(screen)
-        hud.draw(screen, player)
+        hud.draw(screen, player, wave_manager.elapsed)
         if level_up:
             hud.draw_level_up(screen, pending_upgrades, pygame.mouse.get_pos())
         if game_over:

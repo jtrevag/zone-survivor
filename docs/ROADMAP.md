@@ -52,11 +52,11 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
-## Milestone 6 — Wave Scaling
-- [ ] Wave manager ticks on 60s intervals
-- [ ] Spawn rate increases per wave table
-- [ ] Mutant ratio increases over time
-- [ ] Bandit HP scales after minute 5
+## Milestone 6 — Wave Scaling ✓
+- [x] Wave manager ticks on 60s intervals
+- [x] Spawn rate increases per wave table
+- [x] Mutant ratio increases over time
+- [x] Bandit HP scales after minute 5
 
 ---
 

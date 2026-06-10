@@ -4,6 +4,15 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v0.7 — 2026-06-10
+- Milestone 6: wave scaling
+- `systems/wave_manager.py`: new `WaveManager` — tracks elapsed game time, exposes `params` property with `spawn_interval`, `mutant_ratio`, and `hp_mult` derived from `WAVE_TABLE`; module-level assertion enforces table is sorted ascending; active row cached in `update()` (O(1) per frame); fresh instance created per game (no reset method)
+- `systems/spawner.py`: `update()` now accepts `spawn_interval`, `mutant_ratio`, and `hp_mult` as explicit params (replaces hardcoded `SPAWN_INTERVAL` import); passes `hp_mult` to both `Mutant` and `Bandit` constructors
+- `entities/enemy.py`: `Bandit.__init__` and `Mutant.__init__` both accept `hp_mult=1.0`; `self.hp = int(MAX_HP * hp_mult)` — all enemy HP scales with wave
+- `main.py`: instantiates `WaveManager` in `new_game()`; calls `wave_manager.update(dt)` each active frame; passes wave params to `spawner.update()`; fresh `WaveManager` on restart
+- `settings.py`: `SPAWN_INTERVAL` replaced with `WAVE_TABLE` — list of `(minute_threshold, spawn_interval, mutant_ratio, hp_mult)` tuples covering 5 difficulty tiers
+- Docs: `ROADMAP.md` M6 checked off
+
 ## v0.6 — 2026-06-10
 - Milestone 5: XP orbs, leveling, and upgrade selection
 - `entities/xp_orb.py`: new `XPOrb` sprite — 10s lifetime, proximity pickup at 20px radius, green circle r=5; calls `player.collect_xp()` on contact and self-removes via `kill()`
