@@ -25,8 +25,8 @@ class Projectile(pygame.sprite.Sprite):
 
 
 class Bullet(Projectile):
-    def __init__(self, pos, direction):
-        super().__init__(pos, direction, BULLET_SPEED, BULLET_RADIUS, PLAYER_DAMAGE)
+    def __init__(self, pos, direction, damage=PLAYER_DAMAGE):
+        super().__init__(pos, direction, BULLET_SPEED, BULLET_RADIUS, damage)
 
     def draw(self, surface):
         pygame.draw.circle(surface, BULLET_COLOR, self.rect.center, BULLET_RADIUS)
