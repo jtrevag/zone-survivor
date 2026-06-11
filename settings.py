@@ -50,6 +50,13 @@ DEFAULT_MUTANT_RATIO = 0.4  # fallback when no room-level ratio is set
 ROOM_MUTANT_RATIO_MIN = 0.2
 ROOM_MUTANT_RATIO_MAX = 0.8
 
+# Room sequence for a full run (boss room added in Milestone 11)
+ROOM_SEQUENCE = [
+    {'type': 'survive',    'duration': 90,  'difficulty': 1.0},
+    {'type': 'kill_count', 'target': 25,    'difficulty': 1.4},
+    {'type': 'survive',    'duration': 60,  'difficulty': 1.8},
+]
+
 # Bullet
 BULLET_SPEED = 500        # px/s
 BULLET_RADIUS = 4

@@ -1,5 +1,6 @@
 import random
 from settings import ROOM_MUTANT_RATIO_MIN, ROOM_MUTANT_RATIO_MAX
+from systems.wave_manager import WaveManager
 
 
 class SurviveRoom:
@@ -36,6 +37,9 @@ class KillCountRoom:
         self.mutant_ratio = random.uniform(ROOM_MUTANT_RATIO_MIN, ROOM_MUTANT_RATIO_MAX)
         self._kills = 0
 
+    def update(self, dt):
+        pass
+
     def record_kill(self):
         self._kills += 1
 
@@ -59,6 +63,9 @@ class BossRoom:
         self.difficulty = difficulty
         self.mutant_ratio = random.uniform(ROOM_MUTANT_RATIO_MIN, ROOM_MUTANT_RATIO_MAX)
 
+    def update(self, dt):
+        pass
+
     @property
     def is_complete(self):
         return False
@@ -66,3 +73,75 @@ class BossRoom:
     @property
     def timer_display(self):
         return None
+
+
+class RunManager:
+    def __init__(self, room_sequence):
+        self._sequence = list(room_sequence)
+        self._room_idx = 0
+        self._run_elapsed = 0.0
+        if not self._sequence:
+            self._state = 'WIN'
+            self._current_room = None
+            self._wave_manager = None
+        else:
+            self._state = 'ENCOUNTER'
+            self._current_room = self._build_room(self._sequence[0])
+            self._wave_manager = WaveManager(
+                difficulty=self._current_room.difficulty,
+                mutant_ratio=self._current_room.mutant_ratio,
+            )
+
+    def _build_room(self, defn):
+        t = defn['type']
+        d = defn['difficulty']
+        if t == 'survive':
+            return SurviveRoom(defn['duration'], d)
+        if t == 'kill_count':
+            return KillCountRoom(defn['target'], d)
+        return BossRoom(d)
+
+    @property
+    def state(self):
+        return self._state
+
+    @property
+    def current_room(self):
+        return self._current_room
+
+    @property
+    def wave_manager(self):
+        return self._wave_manager
+
+    @property
+    def run_elapsed(self):
+        return self._run_elapsed
+
+    def update(self, dt):
+        if self._state != 'ENCOUNTER':
+            return
+        self._run_elapsed += dt
+        self._current_room.update(dt)
+        if self._current_room.is_complete:
+            self._state = 'REWARD'
+
+    def record_kill(self):
+        if self._state != 'ENCOUNTER':
+            return
+        if isinstance(self._current_room, KillCountRoom):
+            self._current_room.record_kill()
+
+    def advance(self):
+        self._room_idx += 1
+        if self._room_idx >= len(self._sequence):
+            self._state = 'WIN'
+            return
+        self._current_room = self._build_room(self._sequence[self._room_idx])
+        self._wave_manager = WaveManager(
+            difficulty=self._current_room.difficulty,
+            mutant_ratio=self._current_room.mutant_ratio,
+        )
+        self._state = 'ENCOUNTER'
+
+    def on_player_death(self):
+        self._state = 'GAME_OVER'
