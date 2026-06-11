@@ -132,6 +132,8 @@ class RunManager:
             self._current_room.record_kill()
 
     def advance(self):
+        if self._state != 'REWARD':
+            return
         self._room_idx += 1
         if self._room_idx >= len(self._sequence):
             self._state = 'WIN'

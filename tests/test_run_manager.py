@@ -215,5 +215,12 @@ class TestRunManager(unittest.TestCase):
         self.assertEqual(rm.current_room.target, 25)
 
 
+    def test_advance_outside_reward_is_noop(self):
+        rm = self._make()  # state = ENCOUNTER
+        room_before = rm.current_room
+        rm.advance()  # should be a no-op
+        self.assertIs(rm.current_room, room_before)
+        self.assertEqual(rm.state, 'ENCOUNTER')
+
 if __name__ == '__main__':
     unittest.main()
