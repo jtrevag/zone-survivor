@@ -44,7 +44,8 @@ class TestPlayerHitSignals(unittest.TestCase):
         p.take_damage(10)
         self.assertFalse(p.just_hit)
 
-    def test_hit_flash_timer_decrements_on_update(self):
+    def test_hit_flash_timer_unchanged_by_update(self):
+        # Timer is ticked by main loop (not player.update) so it works post-death too
         p = self._make()
         p.take_damage(10)
         initial = p.hit_flash_timer
@@ -52,8 +53,7 @@ class TestPlayerHitSignals(unittest.TestCase):
         with patch('pygame.key.get_pressed', return_value=keys_state), \
              patch('pygame.mouse.get_pos', return_value=(0, 0)):
             p.update(0.05)
-        self.assertLess(p.hit_flash_timer, initial)
-        self.assertGreater(p.hit_flash_timer, 0.0)
+        self.assertEqual(p.hit_flash_timer, initial)
 
     def test_reload_complete_set_when_reload_finishes(self):
         p = self._make()

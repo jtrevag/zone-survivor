@@ -56,8 +56,9 @@ class Player(pygame.sprite.Sprite):
         self.hp = max(0, self.hp - amount)
         if self.hp <= 0:
             self.dead = True
+        else:
+            self.just_hit = True
         self.hit_flash_timer = HIT_FLASH_DURATION
-        self.just_hit = True
 
     def collect_xp(self, amount):
         self.xp += amount
@@ -116,9 +117,6 @@ class Player(pygame.sprite.Sprite):
 
         if self._shot_cooldown > 0:
             self._shot_cooldown = max(0.0, self._shot_cooldown - dt)
-
-        if self.hit_flash_timer > 0:
-            self.hit_flash_timer = max(0.0, self.hit_flash_timer - dt)
 
         if self.reloading:
             self.reload_progress = min(1.0, self.reload_progress + dt / self.reload_time)

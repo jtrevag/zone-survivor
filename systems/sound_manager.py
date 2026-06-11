@@ -31,11 +31,6 @@ def _make_chirp(freq_start, freq_end, duration, volume=0.3, sample_rate=44100):
 
 class SoundManager:
     def __init__(self):
-        from settings import SOUND_SAMPLE_RATE, SOUND_CHANNELS, SOUND_BUFFER_SIZE
-        pygame.mixer.pre_init(
-            frequency=SOUND_SAMPLE_RATE, size=-16,
-            channels=SOUND_CHANNELS, buffer=SOUND_BUFFER_SIZE,
-        )
         self._gunshot = _make_tone(800, 0.06, volume=0.5)
         self._reload = _make_chirp(200, 500, 0.2, volume=0.3)
         self._hit = _make_tone(150, 0.10, volume=0.4)
