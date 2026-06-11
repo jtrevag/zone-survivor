@@ -52,6 +52,16 @@ WAVE_TABLE = [
     Wave(minute=10, spawn_interval=0.7, mutant_ratio=0.60, hp_mult=2.0),
 ]
 
+WIN_TIME = 1200.0  # 20 minutes in seconds
+
+HIT_FLASH_DURATION = 0.15   # seconds
+HIT_FLASH_COLOR = (220, 40, 40)
+HIT_FLASH_ALPHA_MAX = 100   # 0–255
+
+SOUND_SAMPLE_RATE = 44100
+SOUND_CHANNELS = 2
+SOUND_BUFFER_SIZE = 512
+
 # Bullet
 BULLET_SPEED = 500        # px/s
 BULLET_RADIUS = 4
