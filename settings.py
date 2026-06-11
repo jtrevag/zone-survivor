@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 # Window / loop
 WIDTH = 1280
 HEIGHT = 720
@@ -35,25 +33,6 @@ MUTANT_MAX_HP = 35
 MUTANT_CONTACT_DAMAGE = 15
 MUTANT_CONTACT_COOLDOWN = 0.5  # seconds
 
-
-@dataclass(frozen=True)
-class Wave:
-    minute: float
-    spawn_interval: float
-    mutant_ratio: float
-    hp_mult: float
-
-
-WAVE_TABLE = [
-    Wave(minute=0,  spawn_interval=3.0, mutant_ratio=0.20, hp_mult=1.0),
-    Wave(minute=2,  spawn_interval=2.0, mutant_ratio=0.30, hp_mult=1.0),
-    Wave(minute=4,  spawn_interval=1.5, mutant_ratio=0.40, hp_mult=1.2),
-    Wave(minute=6,  spawn_interval=1.0, mutant_ratio=0.50, hp_mult=1.5),
-    Wave(minute=10, spawn_interval=0.7, mutant_ratio=0.60, hp_mult=2.0),
-]
-
-WIN_TIME = 1200.0  # 20 minutes in seconds
-
 HIT_FLASH_DURATION = 0.15   # seconds
 HIT_FLASH_COLOR = (220, 40, 40)
 HIT_FLASH_ALPHA_MAX = 100   # 0–255
@@ -61,6 +40,10 @@ HIT_FLASH_ALPHA_MAX = 100   # 0–255
 SOUND_SAMPLE_RATE = 44100
 SOUND_CHANNELS = 2
 SOUND_BUFFER_SIZE = 512
+
+# Wave difficulty base values (scaled per room by difficulty multiplier)
+BASE_SPAWN_INTERVAL = 2.0   # seconds between spawns at difficulty 1.0
+BASE_HP_MULT = 1.0           # enemy HP multiplier at difficulty 1.0
 
 # Bullet
 BULLET_SPEED = 500        # px/s
