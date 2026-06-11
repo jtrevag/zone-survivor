@@ -59,7 +59,7 @@ class HUD:
         ]
 
         # Timer — top-center
-        self._cached_elapsed_sec = -1
+        self._cached_timer_text = -1
         self._timer_surf = None
 
         # Pre-allocated surfaces
@@ -93,9 +93,9 @@ class HUD:
         # Timer — top-center (text supplied by room; None hides it)
         if room is not None and room.timer_display is not None:
             timer_text = room.timer_display
-            if timer_text != self._cached_elapsed_sec:
+            if timer_text != self._cached_timer_text:
                 self._timer_surf, _ = self._font.render(timer_text, HUD_COLOR_AMMO)
-                self._cached_elapsed_sec = timer_text
+                self._cached_timer_text = timer_text
             surface.blit(self._timer_surf, (
                 (WIDTH - self._timer_surf.get_width()) // 2,
                 HUD_MARGIN,
@@ -195,9 +195,9 @@ class HUD:
             (WIDTH - title_rect.width) // 2,
             HEIGHT // 2 - 60,
         ))
-        sub_surf, sub_rect = self._font.render('Press SPACE to continue', (160, 160, 160))
+        sub_surf, _ = self._font.render('Press SPACE to continue', (160, 160, 160))
         self._overlay_surf.blit(sub_surf, (
-            (WIDTH - sub_rect.width) // 2,
+            (WIDTH - sub_surf.get_width()) // 2,
             HEIGHT // 2 + 10,
         ))
         surface.blit(self._overlay_surf, (0, 0))
