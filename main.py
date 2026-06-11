@@ -5,12 +5,13 @@ from settings import (
     WIDTH, HEIGHT, FPS, TITLE, BACKGROUND_COLOR, UPGRADES,
     HIT_FLASH_COLOR, HIT_FLASH_DURATION, HIT_FLASH_ALPHA_MAX,
     SOUND_SAMPLE_RATE, SOUND_CHANNELS, SOUND_BUFFER_SIZE,
+    ROOM_SEQUENCE,
 )
 from systems.sound_manager import SoundManager
 from entities.player import Player
 from entities.xp_orb import XPOrb
 from systems.spawner import Spawner
-from systems.wave_manager import WaveManager
+from systems.run_manager import RunManager
 from ui.hud import HUD
 
 
@@ -19,11 +20,12 @@ def new_game():
     enemies = pygame.sprite.Group()
     bullets = pygame.sprite.Group()
     enemy_projectiles = pygame.sprite.Group()
+    xp_orbs = pygame.sprite.Group()
     player = Player()
     all_sprites.add(player)
     spawner = Spawner()
-    wave_manager = WaveManager()
-    return player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager
+    run_manager = RunManager(ROOM_SEQUENCE)
+    return player, all_sprites, enemies, bullets, enemy_projectiles, xp_orbs, spawner, run_manager
 
 
 async def main():
@@ -41,9 +43,7 @@ async def main():
     _flash_surf = pygame.Surface((WIDTH, HEIGHT))
     _flash_surf.fill(HIT_FLASH_COLOR)
 
-    player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager = new_game()
-    game_over = False
-    game_won = False
+    player, all_sprites, enemies, bullets, enemy_projectiles, xp_orbs, spawner, run_manager = new_game()
     level_up = False
     pending_upgrades = []
 
@@ -54,11 +54,17 @@ async def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 running = False
-            elif game_over or game_won:
+            elif run_manager.state in ('WIN', 'GAME_OVER'):
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                    player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager = new_game()
-                    game_over = False
-                    game_won = False
+                    player, all_sprites, enemies, bullets, enemy_projectiles, xp_orbs, spawner, run_manager = new_game()
+                    level_up = False
+                    pending_upgrades = []
+            elif run_manager.state == 'REWARD':
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    for e in list(enemies): e.kill()
+                    for p in list(enemy_projectiles): p.kill()
+                    for o in list(xp_orbs): o.kill()
+                    run_manager.advance()
             elif level_up:
                 if event.type == pygame.KEYDOWN:
                     idx = event.key - pygame.K_1
@@ -80,14 +86,15 @@ async def main():
                         bullets.add(bullet)
                         sounds.play_gunshot()
 
-        if not game_over and not game_won and not level_up:
-            wave_manager.update(dt)
-            wp = wave_manager.params
+        if run_manager.state == 'ENCOUNTER' and not level_up:
+            run_manager.update(dt)
             all_sprites.update(dt, player)
-            spawner.update(dt, all_sprites, enemies, enemy_projectiles,
-                           spawn_interval=wp['spawn_interval'],
-                           mutant_ratio=wp['mutant_ratio'],
-                           hp_mult=wp['hp_mult'])
+            if run_manager.current_room.spawns_waves:
+                wp = run_manager.wave_manager.params
+                spawner.update(dt, all_sprites, enemies, enemy_projectiles,
+                               spawn_interval=wp['spawn_interval'],
+                               mutant_ratio=wp['mutant_ratio'],
+                               hp_mult=wp['hp_mult'])
 
             hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
             for bullet, hit_enemies in hits.items():
@@ -95,6 +102,8 @@ async def main():
                     if enemy.take_damage(bullet.damage):
                         orb = XPOrb(enemy.pos, enemy.xp_value)
                         all_sprites.add(orb)
+                        xp_orbs.add(orb)
+                        run_manager.record_kill()
 
             for proj in pygame.sprite.spritecollide(player, enemy_projectiles, True):
                 player.take_damage(proj.damage)
@@ -107,10 +116,8 @@ async def main():
                 player.reload_complete = False
 
             if player.dead:
-                game_over = True
+                run_manager.on_player_death()
                 sounds.play_death()
-            elif wave_manager.is_complete:
-                game_won = True
             elif player.pending_level_up:
                 player.pending_level_up = False
                 level_up = True
@@ -119,7 +126,7 @@ async def main():
         screen.fill(BACKGROUND_COLOR)
         for entity in all_sprites:
             entity.draw(screen)
-        hud.draw(screen, player, wave_manager.elapsed)
+        hud.draw(screen, player, run_manager.current_room)
 
         if player.hit_flash_timer > 0:
             player.hit_flash_timer = max(0.0, player.hit_flash_timer - dt)
@@ -129,10 +136,12 @@ async def main():
 
         if level_up:
             hud.draw_level_up(screen, pending_upgrades, pygame.mouse.get_pos())
-        if game_over:
-            hud.draw_game_over(screen, wave_manager.elapsed)
-        if game_won:
-            hud.draw_win_screen(screen, wave_manager.elapsed)
+        if run_manager.state == 'REWARD':
+            hud.draw_room_clear(screen)
+        if run_manager.state == 'GAME_OVER':
+            hud.draw_game_over(screen, run_manager.run_elapsed)
+        if run_manager.state == 'WIN':
+            hud.draw_win_screen(screen, run_manager.run_elapsed)
         pygame.display.flip()
         await asyncio.sleep(0)
 
