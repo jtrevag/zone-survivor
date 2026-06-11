@@ -1,3 +1,4 @@
+import asyncio
 import pygame
 import random
 from settings import (
@@ -25,7 +26,7 @@ def new_game():
     return player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager
 
 
-def main():
+async def main():
     pygame.mixer.pre_init(
         frequency=SOUND_SAMPLE_RATE, size=-16,
         channels=SOUND_CHANNELS, buffer=SOUND_BUFFER_SIZE,
@@ -132,9 +133,9 @@ def main():
         if game_won:
             hud.draw_win_screen(screen, wave_manager.elapsed)
         pygame.display.flip()
+        await asyncio.sleep(0)
 
     pygame.quit()
 
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())
