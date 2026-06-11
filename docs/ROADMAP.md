@@ -70,11 +70,48 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
+## Milestone 8 — Run Structure
+- [ ] `RunManager` (`systems/run_manager.py`) — state machine: `ENCOUNTER → ROOM_COMPLETE → REWARD → ... → WIN`
+- [ ] Room types: `survive` (elapsed ≥ duration), `kill_count` (kills ≥ target), `boss` (all bosses dead)
+- [ ] 3-room + boss sequence in `settings.py` (`ROOM_SEQUENCE`); difficulty maps to `WaveManager` time offset
+- [ ] `WaveManager` accepts `time_offset` param — initialises `self.elapsed = time_offset`
+- [ ] Room reset between rooms — clear enemies, projectiles, XP orbs; player HP and weapon carry over
+- [ ] Replace `game_over`/`game_won` flags in `main.py` with `run_manager.state`
+
+---
+
+## Milestone 9 — Weapons
+- [ ] Weapons as data — move weapon stats out of `Player` into `WEAPONS` dict (`settings.py`)
+- [ ] `Player.equip(weapon_def)` — sets `self.weapon`, resets ammo, clears augments
+- [ ] Shotgun weapon definition — 2-shot mag, 4 pellets, 25° spread cone
+- [ ] `Bullet` accepts `radius`, `shape`, `color`; `draw()` handles `"circle"` and `"rect"` (rotated polygon)
+
+---
+
+## Milestone 10 — Augments & Room Rewards
+- [ ] `AUGMENTS` dict in `settings.py` — laser_pointer, fast_loader, hollow_point, drum_mag
+- [ ] `Player.equip_augment(augment_def)` — appends to `self.augments` (max 2); augments clear on weapon swap
+- [ ] Effective stat methods (`effective_damage()`, `effective_reload()`, etc.) — multiply base by augment multipliers
+- [ ] Room reward screen — 3-card layout (weapon + augment cards); reuses level-up input (1/2/3 + click)
+- [ ] Laser pointer rendering — thin red line from player toward cursor, fades to α=0 at 300px
+- [ ] HUD augment display — active augment names below ammo counter
+
+---
+
+## Milestone 11 — Boss Room
+- [ ] Mutant Boss (×5 HP, 40×40 red rect, 1.5× speed) and Bandit Boss (×5 HP, 48×48 blue rect, 2× fire rate) via `hp_mult`/`size` kwargs on existing constructors
+- [ ] Boss room spawns both simultaneously; no wave spawning during boss fight
+- [ ] Win state triggers after both bosses dead
+
+---
+
 ## Post-v1 (Backlog)
 - [x] Web deploy — playable HTML5 prototype on itch.io (Pygbag/WASM)
-- Additional weapons (shotgun, SMG with auto-fire but more reloads)
+- Map screen / branching paths (Slay the Spire style)
+- SMG and additional weapons beyond shotgun
+- Unique boss with special attacks
+- More augment types
 - Cover/obstacles in arena
-- Elite enemy variants
-- Persistent upgrade tree between runs
+- Persistent meta-progression / character unlocks
 - Tilemap / real art assets
 - Controller support
