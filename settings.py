@@ -44,6 +44,7 @@ SOUND_BUFFER_SIZE = 512
 # Wave difficulty base values (scaled per room by difficulty multiplier)
 BASE_SPAWN_INTERVAL = 2.0   # seconds between spawns at difficulty 1.0
 BASE_HP_MULT = 1.0           # enemy HP multiplier at difficulty 1.0
+DEFAULT_MUTANT_RATIO = 0.4  # fallback when no room-level ratio is set
 
 # Bullet
 BULLET_SPEED = 500        # px/s

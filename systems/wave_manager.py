@@ -1,8 +1,8 @@
-from settings import BASE_SPAWN_INTERVAL, BASE_HP_MULT
+from settings import BASE_SPAWN_INTERVAL, BASE_HP_MULT, DEFAULT_MUTANT_RATIO
 
 
 class WaveManager:
-    def __init__(self, difficulty=1.0, mutant_ratio=0.4):
+    def __init__(self, difficulty=1.0, mutant_ratio=DEFAULT_MUTANT_RATIO):
         self._difficulty = difficulty
         self._mutant_ratio = mutant_ratio
 
