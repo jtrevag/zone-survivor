@@ -71,6 +71,7 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 ---
 
 ## Post-v1 (Backlog)
+- [x] Web deploy — playable HTML5 prototype on itch.io (Pygbag/WASM)
 - Additional weapons (shotgun, SMG with auto-fire but more reloads)
 - Cover/obstacles in arena
 - Elite enemy variants

@@ -1,3 +1,4 @@
+import asyncio
 import pygame
 import random
 from settings import (
@@ -25,7 +26,7 @@ def new_game():
     return player, all_sprites, enemies, bullets, enemy_projectiles, spawner, wave_manager
 
 
-def main():
+async def main():
     pygame.mixer.pre_init(
         frequency=SOUND_SAMPLE_RATE, size=-16,
         channels=SOUND_CHANNELS, buffer=SOUND_BUFFER_SIZE,
@@ -121,6 +122,7 @@ def main():
         hud.draw(screen, player, wave_manager.elapsed)
 
         if player.hit_flash_timer > 0:
+            player.hit_flash_timer = max(0.0, player.hit_flash_timer - dt)
             alpha = int(HIT_FLASH_ALPHA_MAX * player.hit_flash_timer / HIT_FLASH_DURATION)
             _flash_surf.set_alpha(alpha)
             screen.blit(_flash_surf, (0, 0))
@@ -132,9 +134,10 @@ def main():
         if game_won:
             hud.draw_win_screen(screen, wave_manager.elapsed)
         pygame.display.flip()
+        await asyncio.sleep(0)
 
     pygame.quit()
 
 
-if __name__ == "__main__":
-    main()
+# Pygbag (WASM) requires asyncio.run at module level — do not add an __name__ guard.
+asyncio.run(main())

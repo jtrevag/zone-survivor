@@ -4,6 +4,13 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v0.9 — 2026-06-11
+- Web deploy: playable HTML5 prototype on itch.io via Pygbag (WASM)
+- `main.py`: refactored `main()` to `async def`, added `await asyncio.sleep(0)` per frame, changed entry point to `asyncio.run(main())` — required for Pygbag/browser event loop
+- `requirements.txt`: added `pygbag>=0.9.0`
+- `pygbag.ini`: added exclude list for dev dirs (`.venv`, `.agents`, `.claude`, `tests`, `docs`, `build`, cache dirs) — paths must use leading `/` to match pygbag's gathered path format
+- `.gitignore`: added `build/` and `zone-survivor-web.zip`
+
 ## v0.8 — 2026-06-10
 - Milestone 7: win condition & polish
 - `systems/wave_manager.py`: added `is_complete` property — returns `True` when elapsed >= `WIN_TIME` (1200s)
