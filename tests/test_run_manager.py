@@ -151,10 +151,19 @@ class TestRunManager(unittest.TestCase):
         rm = self._make([{'type': 'survive', 'duration': 90, 'difficulty': 1.0}])
         self.assertAlmostEqual(rm.wave_manager._mutant_ratio, rm.current_room.mutant_ratio)
 
-    def test_transitions_to_reward_when_room_complete(self):
-        rm = self._make([{'type': 'survive', 'duration': 1, 'difficulty': 1.0}])
+    def test_transitions_to_reward_on_non_last_room(self):
+        seq = [
+            {'type': 'survive', 'duration': 1, 'difficulty': 1.0},
+            {'type': 'survive', 'duration': 90, 'difficulty': 1.0},
+        ]
+        rm = self._make(seq)
         rm.update(1.1)
         self.assertEqual(rm.state, 'REWARD')
+
+    def test_last_room_complete_goes_to_win_not_reward(self):
+        rm = self._make([{'type': 'survive', 'duration': 1, 'difficulty': 1.0}])
+        rm.update(1.1)
+        self.assertEqual(rm.state, 'WIN')
 
     def test_does_not_complete_before_duration(self):
         rm = self._make([{'type': 'survive', 'duration': 90, 'difficulty': 1.0}])
@@ -197,7 +206,11 @@ class TestRunManager(unittest.TestCase):
         self.assertAlmostEqual(rm.run_elapsed, elapsed_at_reward)
 
     def test_record_kill_delegates_to_kill_count_room(self):
-        rm = self._make([{'type': 'kill_count', 'target': 1, 'difficulty': 1.0}])
+        seq = [
+            {'type': 'kill_count', 'target': 1, 'difficulty': 1.0},
+            {'type': 'survive', 'duration': 90, 'difficulty': 1.0},
+        ]
+        rm = self._make(seq)
         rm.record_kill()
         rm.update(0.0)
         self.assertEqual(rm.state, 'REWARD')

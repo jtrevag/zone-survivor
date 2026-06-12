@@ -132,7 +132,10 @@ class RunManager:
         self._run_elapsed += dt
         self._current_room.update(dt)
         if self._current_room.is_complete:
-            self._state = 'REWARD'
+            if self._room_idx >= len(self._sequence) - 1:
+                self._state = 'WIN'
+            else:
+                self._state = 'REWARD'
 
     def record_kill(self):
         if self._state != 'ENCOUNTER':
