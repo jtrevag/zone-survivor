@@ -5,7 +5,7 @@ from settings import (
     WIDTH, HEIGHT, FPS, TITLE, BACKGROUND_COLOR, UPGRADES,
     HIT_FLASH_COLOR, HIT_FLASH_DURATION, HIT_FLASH_ALPHA_MAX,
     SOUND_SAMPLE_RATE, SOUND_CHANNELS, SOUND_BUFFER_SIZE,
-    ROOM_SEQUENCE,
+    ROOM_SEQUENCE, WEAPONS,
 )
 from systems.sound_manager import SoundManager
 from entities.player import Player
@@ -83,11 +83,19 @@ async def main():
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                     player.try_reload()
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    bullet = player.try_fire()
-                    if bullet:
-                        all_sprites.add(bullet)
-                        bullets.add(bullet)
+                    fired = player.try_fire()
+                    if fired:
+                        for bullet in fired:
+                            all_sprites.add(bullet)
+                            bullets.add(bullet)
                         sounds.play_gunshot()
+                # DEV ONLY — remove in M10 when reward screen handles weapon equip
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
+                    if player.weapon is WEAPONS['pistol']:
+                        player.equip(WEAPONS['shotgun'])
+                    else:
+                        player.equip(WEAPONS['pistol'])
+                    print(f"[DEV] weapon: {player.weapon['name']}")
 
         if run_manager.state == 'ENCOUNTER' and not level_up:
             run_manager.update(dt)
