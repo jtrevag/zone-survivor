@@ -236,11 +236,24 @@ Ammo display uses `player.effective_mag_size()` as the denominator: `{player.amm
 | File | Change |
 |---|---|
 | `settings.py` | Add `AUGMENTS` dict with colors; add `augments` list to each weapon def |
-| `entities/player.py` | `equip_augment()`, `effective_*()` methods, `try_fire()` + reload updates, `draw()` laser pointer |
+| `entities/player.py` | `equip_augment()`, `effective_*()` methods, `try_fire()` + reload updates, `draw()` laser pointer, random starting weapon |
 | `entities/projectile.py` | `Bullet`: `pierce_count`/`pierce_damage_mult` params, `on_hit()` method |
 | `systems/run_manager.py` | `update()` skips REWARD on last room → WIN directly |
 | `main.py` | Manual bullet collision loop; REWARD card generation + input; `paused` flag; ESC = pause; Q = quit while paused; remove ESC-quits |
 | `ui/hud.py` | `draw_reward()`, `draw_pause()`, augment slot squares in `draw()`, ammo denom → `effective_mag_size()` |
+
+---
+
+## Random Starting Weapon
+
+`Player.__init__` picks a random weapon from `WEAPONS` instead of always equipping pistol:
+
+```python
+import random
+self.equip(random.choice(list(WEAPONS.values())))
+```
+
+Dev Tab toggle in `main.py` remains for testing.
 
 ---
 
