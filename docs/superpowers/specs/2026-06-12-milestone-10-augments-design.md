@@ -34,6 +34,16 @@ Five augments. Each is a dict with `id`, `name`, `desc`, plus optional multiplie
 | `drum_mag` | Drum Mag | `mag_size_mult: 2.0` | ×2 mag size on next reload |
 | `more_pellets` | More Pellets | `pellet_bonus: 2` | Shotgun-only. 4 → 6 pellets, same 25° spread |
 
+Each augment also has a `color` key (RGB tuple) used for the HUD slot indicator square:
+
+| id | color |
+|---|---|
+| `laser_pointer` | `(200, 80, 80)` — dim red |
+| `fast_loader` | `(80, 200, 200)` — cyan |
+| `hollow_point` | `(220, 180, 40)` — gold |
+| `drum_mag` | `(120, 200, 80)` — green |
+| `more_pellets` | `(200, 120, 40)` — orange |
+
 ### Weapon augment pools
 
 Each weapon def gains an `augments` list of compatible augment IDs:
@@ -43,7 +53,7 @@ Each weapon def gains an `augments` list of compatible augment IDs:
 'shotgun': { ..., 'augments': ['laser_pointer', 'fast_loader', 'more_pellets', 'drum_mag'] }
 ```
 
-Reward card generation draws 2 augments from `player.weapon['augments']`.
+Reward card generation draws 2 augments from `player.weapon['augments']`, excluding IDs already in `player.augments`. Pool of 4 with max 2 equipped always leaves ≥ 2 to draw.
 
 ---
 
@@ -83,7 +93,8 @@ When `laser_pointer` augment active:
 - Cast ray from `player.pos` toward cursor, max 300 px
 - Find nearest enemy whose `rect.clipline(start, end)` returns a hit
 - Clip line to that intersection (or 300 px if no enemy in path)
-- Draw outer dim red line (width 3, low alpha) + inner bright red line (width 1), both fade to α=0 at endpoint
+- Draw outer dim red line (width 3, α≈80) + inner bright red line (width 1, full alpha)
+- No fade — line stops cleanly at hit point
 
 ---
 
@@ -118,7 +129,7 @@ else:
 
 Replace `groupcollide(bullets, enemies, True, True)` with a manual loop:
 
-```
+```python
 for bullet in list(bullets):  # copy — safe to kill during iteration
     for enemy in pygame.sprite.spritecollide(bullet, enemies, False):
         if bullet.on_hit(enemy):
@@ -129,22 +140,41 @@ for bullet in list(bullets):  # copy — safe to kill during iteration
 
 ---
 
+## RunManager (`systems/run_manager.py`)
+
+### Skip REWARD on last room
+
+`update()` checks whether the completed room is the last in the sequence. If so, transitions directly to WIN — skipping the reward screen entirely.
+
+```python
+if self._current_room.is_complete:
+    if self._room_idx >= len(self._sequence) - 1:
+        self._state = 'WIN'
+    else:
+        self._state = 'REWARD'
+```
+
+Main loop needs no change — it already handles WIN.
+
+---
+
 ## Room Reward Screen
 
 ### Card generation (on REWARD transition)
 
-- Card 1: the OTHER weapon (not currently equipped)
-- Cards 2–3: 2 augments sampled without replacement from `player.weapon['augments']`, excluding augments already in `player.augments`; pool of 4 with max 2 equipped always leaves ≥ 2 to draw
-- Cards generated once on transition, stored in main loop local var
+- Card 1: the OTHER weapon (not currently equipped) — base stats displayed, note "Upgrades carry over"
+- Cards 2–3: 2 augments drawn without replacement from `player.weapon['augments']`, excluding already-equipped augment IDs
+- Cards generated once on transition, stored as local var in main loop
 
 ### `HUD.draw_reward(surface, cards, mouse_pos)`
 
-Reuses `_card_rects` and card rendering from `draw_level_up()`. Replaces `draw_room_clear()` entirely — "ROOM CLEAR" becomes the overlay title.
+Reuses `_card_rects` and card rendering from `draw_level_up()`. Title: "ROOM CLEAR".
 
-**Weapon card** (always card 1):
+**Weapon card** (card 1):
 - Header: `SWAP → [WeaponName]`
-- Body: key stats (damage, mag, reload)
+- Body: base stats (damage, mag size, reload time)
 - Footer dim red: `Augments reset`
+- Sub-note dim grey: `Upgrades carry over`
 
 **Augment card**:
 - Header: augment name
@@ -154,9 +184,10 @@ Reuses `_card_rects` and card rendering from `draw_level_up()`. Replaces `draw_r
 
 ### Input handling (main.py REWARD state)
 
-- `1`/`2`/`3` keys or click on card → apply selection → `run_manager.advance()`
-- Weapon selection: `player.equip(WEAPONS[weapon_id])`
-- Augment selection: `player.equip_augment(AUGMENTS[augment_id])` (no-op if full)
+- `1`/`2`/`3` keys or click → apply selection → `run_manager.advance()`
+- Weapon: `player.equip(WEAPONS[weapon_id])`
+- Augment: `player.equip_augment(AUGMENTS[augment_id])` (no-op if full)
+- ESC → toggle pause overlay (same pause screen as ENCOUNTER)
 
 ---
 
@@ -164,30 +195,39 @@ Reuses `_card_rects` and card rendering from `draw_level_up()`. Replaces `draw_r
 
 ### Toggle
 
-ESC during ENCOUNTER state toggles `paused` bool in main.py. When `paused`, skip `all_sprites.update()`, collision, and `run_manager.update()`.
+ESC toggles `paused` bool in main.py during both ENCOUNTER and REWARD states.  
+When paused: skip `all_sprites.update()`, collision, and `run_manager.update()`.  
+ESC as quit is removed from the event loop — quit lives in the pause menu instead.
 
 ### `HUD.draw_pause(surface, player)`
 
 Semi-transparent overlay, two columns:
 
-- **Left — Upgrades:** heading + list of upgrade names from `player._upgrade_history` (deduplicated with counts, e.g. "Faster Reload ×2")
-- **Right — Weapon:** current weapon name, augments as indented bullet list
+**Left — Upgrades:**
+- Heading "UPGRADES"
+- `_upgrade_history` deduplicated with counts: e.g. "Faster Reload ×2", "More Damage ×1"
+- Empty state: "None yet"
 
-Footer: `ESC to resume`
+**Right — Weapon:**
+- Current weapon name
+- Augment names as indented bullet list (or "No augments" if empty)
+
+**Footer:** `ESC  resume   Q  quit`
+
+Q key while paused → `pygame.QUIT` event or direct exit.
 
 ---
 
 ## HUD In-Game Augment Display
 
-Extend `HUD.draw()` bottom-left block. Below weapon name, list active augments in small grey text:
+Two small colored squares (10×10 px) rendered immediately to the right of the weapon name label.
 
-```
-Shotgun          ← existing weapon label
-• More Pellets   ← new, only shown if augments active
-• Drum Mag
-```
+- Empty slot: dark grey outline square `(60, 60, 60)`, no fill
+- Filled slot: solid square in the augment's `color` from `AUGMENTS` dict
 
-No change needed if `player.augments` is empty.
+Always shows 2 slots regardless of how many are filled. No text labels — full info lives in the pause screen.
+
+Ammo display uses `player.effective_mag_size()` as the denominator: `{player.ammo} / {player.effective_mag_size()}`.
 
 ---
 
@@ -195,11 +235,12 @@ No change needed if `player.augments` is empty.
 
 | File | Change |
 |---|---|
-| `settings.py` | Add `AUGMENTS` dict; add `augments` list to each weapon def |
+| `settings.py` | Add `AUGMENTS` dict with colors; add `augments` list to each weapon def |
 | `entities/player.py` | `equip_augment()`, `effective_*()` methods, `try_fire()` + reload updates, `draw()` laser pointer |
 | `entities/projectile.py` | `Bullet`: `pierce_count`/`pierce_damage_mult` params, `on_hit()` method |
-| `main.py` | Manual bullet collision loop, REWARD card generation + input, `paused` flag + ESC toggle |
-| `ui/hud.py` | `draw_reward()`, `draw_pause()`, augment list in `draw()` |
+| `systems/run_manager.py` | `update()` skips REWARD on last room → WIN directly |
+| `main.py` | Manual bullet collision loop; REWARD card generation + input; `paused` flag; ESC = pause; Q = quit while paused; remove ESC-quits |
+| `ui/hud.py` | `draw_reward()`, `draw_pause()`, augment slot squares in `draw()`, ammo denom → `effective_mag_size()` |
 
 ---
 
@@ -208,3 +249,4 @@ No change needed if `player.augments` is empty.
 - Boss room (M11)
 - Additional weapons beyond pistol/shotgun
 - Augment synergies or stacking beyond 2 slots
+- Augment art assets
