@@ -162,7 +162,6 @@ class TestRunManager(unittest.TestCase):
         self.assertEqual(rm.state, 'ENCOUNTER')
 
     def test_advance_loads_next_room(self):
-        from systems.run_manager import SurviveRoom
         seq = [
             {'type': 'survive',    'duration': 1,  'difficulty': 1.0},
             {'type': 'survive',    'duration': 60, 'difficulty': 1.8},

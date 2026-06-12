@@ -61,9 +61,12 @@ async def main():
                     pending_upgrades = []
             elif run_manager.state == 'REWARD':
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    for e in list(enemies): e.kill()
-                    for p in list(enemy_projectiles): p.kill()
-                    for o in list(xp_orbs): o.kill()
+                    for e in list(enemies):
+                        e.kill()
+                    for p in list(enemy_projectiles):
+                        p.kill()
+                    for o in list(xp_orbs):
+                        o.kill()
                     run_manager.advance()
             elif level_up:
                 if event.type == pygame.KEYDOWN:
