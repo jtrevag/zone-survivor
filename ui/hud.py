@@ -59,7 +59,7 @@ class HUD:
         ]
 
         # Timer — top-center
-        self._cached_timer_text = -1
+        self._cached_timer_text = None
         self._timer_surf = None
 
         # Pre-allocated surfaces
@@ -69,6 +69,7 @@ class HUD:
         self._cached_game_over_elapsed = -1
         self._win_surf = None
         self._cached_win_elapsed = -1
+        self._room_clear_surf = None
 
     def _draw_bar(self, surface, bg_rect, ratio, fill_color, bg_color):
         pygame.draw.rect(surface, bg_color, bg_rect, border_radius=3)
@@ -189,15 +190,18 @@ class HUD:
         surface.blit(self._win_surf, (0, 0))
 
     def draw_room_clear(self, surface):
-        self._overlay_surf.fill((0, 0, 0, 160))
-        title_surf, title_rect = self._font_large.render('ROOM CLEAR', (220, 220, 220))
-        self._overlay_surf.blit(title_surf, (
-            (WIDTH - title_rect.width) // 2,
-            HEIGHT // 2 - 60,
-        ))
-        sub_surf, _ = self._font.render('Press SPACE to continue', (160, 160, 160))
-        self._overlay_surf.blit(sub_surf, (
-            (WIDTH - sub_surf.get_width()) // 2,
-            HEIGHT // 2 + 10,
-        ))
-        surface.blit(self._overlay_surf, (0, 0))
+        if self._room_clear_surf is None:
+            surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+            surf.fill((0, 0, 0, 160))
+            title_surf, title_rect = self._font_large.render('ROOM CLEAR', (220, 220, 220))
+            surf.blit(title_surf, (
+                (WIDTH - title_rect.width) // 2,
+                HEIGHT // 2 - 60,
+            ))
+            sub_surf, sub_rect = self._font.render('Press SPACE to continue', (160, 160, 160))
+            surf.blit(sub_surf, (
+                (WIDTH - sub_rect.width) // 2,
+                HEIGHT // 2 + 10,
+            ))
+            self._room_clear_surf = surf
+        surface.blit(self._room_clear_surf, (0, 0))
