@@ -1,2 +1,5 @@
 [tool.ruff]
 exclude = [".agents", ".claude", ".venv"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["E402"]

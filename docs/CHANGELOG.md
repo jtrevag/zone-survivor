@@ -4,6 +4,21 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v1.1 — 2026-06-12
+
+### Milestone 9 — Weapons System
+
+- Added `WEAPONS` dict to `settings.py` — weapon stats (damage, mag size, reload time, shot cooldown, bullet params) now live as data instead of loose constants
+- Added pistol (6-round, 55 damage, 1 pellet) and shotgun (2-round, 20 damage × 4 pellets, 25° spread) weapon definitions
+- Added `Player.equip(weapon_def)` — sets all weapon stats, resets ammo, clears reload state, clears augments
+- Refactored `try_fire()` to return `list[Bullet]` — enables multi-pellet weapons
+- Refactored `Bullet` to accept explicit `radius`, `color`, `shape`, `speed` params
+- `Bullet.draw()` handles both `'circle'` and `'rect'` shapes
+- Added dev Tab toggle (ENCOUNTER only) to switch pistol↔shotgun for testing
+- HUD now shows active weapon name above ammo counter
+
+---
+
 ## v1.0 — 2026-06-11
 - Milestone 8: run structure
 - `systems/run_manager.py`: new — `SurviveRoom`, `KillCountRoom`, `BossRoom` room classes with per-room difficulty and randomised mutant ratio; `RunManager` state machine (`ENCOUNTER → REWARD → WIN / GAME_OVER`)

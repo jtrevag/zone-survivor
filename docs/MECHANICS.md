@@ -15,6 +15,25 @@ The core skill mechanic of the game. Rules:
 
 ---
 
+## Weapons
+
+Weapons are defined as data in `WEAPONS` dict in `settings.py`. Equipping a weapon sets the player's mag size, reload time, shot cooldown, damage, and bullet params. Augments clear on weapon swap (applied in Milestone 10).
+
+### Pistol (default)
+- 6-round mag, 1.2s reload, 0.4s shot cooldown
+- Fires 1 bullet per shot
+- Damage: 55
+
+### Shotgun
+- 2-round mag, 1.8s reload, 0.6s shot cooldown
+- Fires 4 pellets per shot in a 25° spread cone
+- Damage: 20 per pellet (up to 80 total at point-blank)
+
+### Room Transitions
+On advancing to the next room the player heals `ROOM_HEAL_FRACTION` (25%) of their max HP. Rewards room clears while keeping accumulated damage meaningful.
+
+---
+
 ## Movement
 - WASD, 8-directional
 - Player rotates to face mouse cursor continuously

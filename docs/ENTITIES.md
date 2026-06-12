@@ -9,13 +9,15 @@
 | move_speed | 200 px/s |
 | max_hp | 100 |
 | hp | 100 |
-| mag_size | 5 |
-| ammo | 5 |
-| reload_time | 2.0s |
+| weapon | pistol (default) |
+| mag_size | set by equipped weapon |
+| ammo | set by equipped weapon |
+| reload_time | set by equipped weapon |
 | is_reloading | false |
 | reload_progress | 0.0–1.0 |
-| damage | 40 |
-| shot_cooldown | 0.4s |
+| damage | set by equipped weapon |
+| shot_cooldown | set by equipped weapon |
+| augments | [] (empty at start) |
 
 **States:** idle, moving, firing, reloading, dead
 
@@ -63,13 +65,28 @@
 
 ## Projectiles
 
-### Player Bullet
+### Pistol Bullet
 **Placeholder:** Yellow circle, radius 4px
 
 | Property | Value |
 |----------|-------|
 | speed | 500 px/s |
-| damage | player.damage |
+| damage | 55 (player.damage) |
+| pellets | 1 |
+| spread | 0° |
+| shape | circle |
+| lifetime | until hit or out of bounds |
+
+### Shotgun Pellet
+**Placeholder:** Orange circle, radius 4px
+
+| Property | Value |
+|----------|-------|
+| speed | 500 px/s |
+| damage | 20 per pellet (×4 pellets) |
+| pellets | 4 |
+| spread | 25° cone |
+| shape | circle |
 | lifetime | until hit or out of bounds |
 
 ### Bandit Projectile
