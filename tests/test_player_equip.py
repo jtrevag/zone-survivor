@@ -107,6 +107,13 @@ class TestPlayerEquip(unittest.TestCase):
         self.assertTrue(p.reload_complete)
         self.assertEqual(p.ammo, p.mag_size)
 
+    def test_damage_upgrade_affects_fired_bullets(self):
+        p = _player()
+        p.apply_upgrade('damage')
+        upgraded_damage = p.damage
+        bullets = p.try_fire()
+        self.assertEqual(bullets[0].damage, upgraded_damage)
+
 
 if __name__ == '__main__':
     unittest.main()

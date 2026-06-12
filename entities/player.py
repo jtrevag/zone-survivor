@@ -46,7 +46,6 @@ class Player(pygame.sprite.Sprite):
         self.just_hit = False
         self.reload_complete = False
 
-        self.augments = []
         self.equip(WEAPONS['pistol'])
 
     def equip(self, weapon_def):
@@ -120,7 +119,7 @@ class Player(pygame.sprite.Sprite):
             ]
 
         return [
-            Bullet(self.pos, d, weapon['damage'], bdef['radius'], bdef['color'], bdef['shape'], bdef['speed'])
+            Bullet(self.pos, d, self.damage, bdef['radius'], bdef['color'], bdef['shape'], bdef['speed'])
             for d in directions
         ]
 
