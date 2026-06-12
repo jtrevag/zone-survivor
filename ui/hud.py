@@ -9,6 +9,7 @@ from settings import (
     HUD_COLOR_XP_BG, HUD_COLOR_XP_FILL,
     HUD_COLOR_CARD_BG, HUD_COLOR_CARD_BORDER, HUD_COLOR_CARD_HOVER,
     HUD_UPGRADE_CARD_W, HUD_UPGRADE_CARD_H, HUD_UPGRADE_CARD_GAP,
+    UPGRADES,
 )
 
 
@@ -276,6 +277,53 @@ class HUD:
         self._overlay_surf.blit(hint_surf, ((WIDTH - hint_rect.width) // 2, hint_y))
 
         surface.blit(self._overlay_surf, (0, 0))
+
+    def draw_pause(self, surface, player):
+        from collections import Counter
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200))
+
+        title_surf, title_rect = self._font_large.render('PAUSED', (220, 220, 220))
+        overlay.blit(title_surf, ((WIDTH - title_rect.width) // 2, 60))
+
+        col_y = 160
+        col_left = WIDTH // 2 - 260
+        col_right = WIDTH // 2 + 40
+
+        head_surf, _ = self._font.render('UPGRADES', (200, 200, 100))
+        overlay.blit(head_surf, (col_left, col_y))
+
+        upgrade_name_map = {u['id']: u['name'] for u in UPGRADES}
+        counts = Counter(player._upgrade_history)
+        if counts:
+            for row, (uid, n) in enumerate(counts.items()):
+                label = upgrade_name_map.get(uid, uid)
+                text = f"{label} ×{n}" if n > 1 else label
+                line_surf, _ = self._font_small.render(text, (180, 180, 180))
+                overlay.blit(line_surf, (col_left, col_y + 36 + row * 24))
+        else:
+            none_surf, _ = self._font_small.render('None yet', (120, 120, 120))
+            overlay.blit(none_surf, (col_left, col_y + 36))
+
+        whead_surf, _ = self._font.render('WEAPON', (200, 200, 100))
+        overlay.blit(whead_surf, (col_right, col_y))
+
+        wname_surf, wname_rect = self._font.render(player.weapon['name'], (220, 220, 220))
+        overlay.blit(wname_surf, (col_right, col_y + 36))
+
+        if player.augments:
+            for row, aug in enumerate(player.augments):
+                aug_surf, _ = self._font_small.render(f"  • {aug['name']}", (180, 180, 180))
+                overlay.blit(aug_surf, (col_right, col_y + 36 + wname_rect.height + 8 + row * 22))
+        else:
+            na_surf, _ = self._font_small.render('  No augments', (120, 120, 120))
+            overlay.blit(na_surf, (col_right, col_y + 36 + wname_rect.height + 8))
+
+        footer_surf, footer_rect = self._font_small.render(
+            'ESC  resume        Q  quit', (140, 140, 140))
+        overlay.blit(footer_surf, ((WIDTH - footer_rect.width) // 2, HEIGHT - 50))
+
+        surface.blit(overlay, (0, 0))
 
     def draw_room_clear(self, surface):
         if self._room_clear_surf is None:

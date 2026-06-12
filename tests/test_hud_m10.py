@@ -64,5 +64,24 @@ class TestDrawReward(unittest.TestCase):
         hud.draw_reward(surf, p, self._cards(), (0, 0))
 
 
+class TestDrawPause(unittest.TestCase):
+    def test_draw_pause_no_upgrades_does_not_raise(self):
+        hud = _hud()
+        surf = pygame.Surface((1280, 720))
+        p = _player()
+        hud.draw_pause(surf, p)
+
+    def test_draw_pause_with_upgrades_and_augments_does_not_raise(self):
+        from settings import AUGMENTS
+        hud = _hud()
+        surf = pygame.Surface((1280, 720))
+        p = _player()
+        p.apply_upgrade('damage')
+        p.apply_upgrade('reload')
+        p.apply_upgrade('damage')
+        p.equip_augment(AUGMENTS['drum_mag'])
+        hud.draw_pause(surf, p)
+
+
 if __name__ == '__main__':
     unittest.main()
