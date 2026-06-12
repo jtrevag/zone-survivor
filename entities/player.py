@@ -1,9 +1,11 @@
+import math
 import pygame
 from settings import (
     ARENA_LEFT, ARENA_TOP, ARENA_RIGHT, ARENA_BOTTOM,
     WHITE, INDICATOR_COLOR,
     PLAYER_SPEED, PLAYER_RADIUS, PLAYER_INDICATOR_LENGTH,
-    PLAYER_MAX_HP, PLAYER_DAMAGE, PLAYER_MAG_SIZE, PLAYER_RELOAD_TIME, PLAYER_SHOT_COOLDOWN,
+    PLAYER_MAX_HP,
+    WEAPONS,
     XP_PER_LEVEL_BASE,
     UPGRADE_MAG_BONUS, UPGRADE_RELOAD_MULT, UPGRADE_DAMAGE_MULT,
     UPGRADE_SPEED_MULT, UPGRADE_HP_BONUS, UPGRADE_FIRE_RATE_MULT,
@@ -28,14 +30,8 @@ class Player(pygame.sprite.Sprite):
         self.hp = PLAYER_MAX_HP
         self.dead = False
 
-        # Mutable combat stats — modified by upgrades
-        self.damage = PLAYER_DAMAGE
         self.move_speed = PLAYER_SPEED
-        self.mag_size = PLAYER_MAG_SIZE
-        self.reload_time = PLAYER_RELOAD_TIME
-        self.shot_cooldown_base = PLAYER_SHOT_COOLDOWN
 
-        self.ammo = self.mag_size
         self.reloading = False
         self.reload_progress = 0.0
         self._shot_cooldown = 0.0
@@ -49,6 +45,19 @@ class Player(pygame.sprite.Sprite):
         self.hit_flash_timer = 0.0
         self.just_hit = False
         self.reload_complete = False
+
+        self.augments = []
+        self.equip(WEAPONS['pistol'])
+
+    def equip(self, weapon_def):
+        # TODO M10: replay self._upgrades_taken after equip so upgrades persist across weapon swaps
+        self.weapon = weapon_def
+        self.mag_size = weapon_def['mag_size']
+        self.reload_time = weapon_def['reload_time']
+        self.shot_cooldown_base = weapon_def['shot_cooldown']
+        self.damage = weapon_def['damage']
+        self.ammo = self.mag_size
+        self.augments = []
 
     def take_damage(self, amount):
         if self.dead:
@@ -85,12 +94,35 @@ class Player(pygame.sprite.Sprite):
             self.shot_cooldown_base *= UPGRADE_FIRE_RATE_MULT
 
     def try_fire(self):
-        """Return a Bullet if firing is allowed, else None."""
+        """Return list of Bullets; empty list means cannot fire."""
         if self.reloading or self._shot_cooldown > 0 or self.ammo <= 0:
-            return None
+            return []
         self.ammo -= 1
         self._shot_cooldown = self.shot_cooldown_base
-        return Bullet(self.pos, self.facing, self.damage)
+
+        weapon = self.weapon
+        pellets = weapon['pellets']
+        spread = weapon['spread']
+        bdef = weapon['bullet']
+
+        if pellets == 1 or spread == 0.0:
+            directions = [pygame.math.Vector2(self.facing)]
+        else:
+            base_angle = math.degrees(math.atan2(self.facing.y, self.facing.x))
+            half = spread / 2.0
+            step = spread / (pellets - 1)
+            directions = [
+                pygame.math.Vector2(
+                    math.cos(math.radians(base_angle - half + step * i)),
+                    math.sin(math.radians(base_angle - half + step * i)),
+                )
+                for i in range(pellets)
+            ]
+
+        return [
+            Bullet(self.pos, d, weapon['damage'], bdef['radius'], bdef['color'], bdef['shape'], bdef['speed'])
+            for d in directions
+        ]
 
     def try_reload(self):
         if not self.reloading:
