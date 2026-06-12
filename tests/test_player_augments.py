@@ -148,5 +148,17 @@ class TestTryFireEffectiveMethods(unittest.TestCase):
         self.assertFalse(p.reload_complete)
 
 
+class TestRandomStartingWeapon(unittest.TestCase):
+    def test_starting_weapon_is_valid(self):
+        from settings import WEAPONS
+        p = _player()
+        self.assertIn(p.weapon, WEAPONS.values())
+
+    def test_multiple_starts_can_differ(self):
+        from settings import WEAPONS
+        names = {_player().weapon['name'] for _ in range(30)}
+        self.assertGreater(len(names), 1, "Starting weapon never varied across 30 instances")
+
+
 if __name__ == '__main__':
     unittest.main()

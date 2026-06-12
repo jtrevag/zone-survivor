@@ -1,4 +1,5 @@
 import math
+import random
 import pygame
 from settings import (
     ARENA_LEFT, ARENA_TOP, ARENA_RIGHT, ARENA_BOTTOM,
@@ -52,7 +53,7 @@ class Player(pygame.sprite.Sprite):
 
         self._ammo_by_weapon = {}   # weapon name → saved ammo
         self._upgrade_history = []  # ordered list of applied upgrade IDs
-        self.equip(WEAPONS['pistol'])
+        self.equip(random.choice(list(WEAPONS.values())))
 
     def equip(self, weapon_def):
         # Persist current weapon's ammo before switching
