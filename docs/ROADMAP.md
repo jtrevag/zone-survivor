@@ -80,11 +80,11 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
-## Milestone 9 — Weapons
-- [ ] Weapons as data — move weapon stats out of `Player` into `WEAPONS` dict (`settings.py`)
-- [ ] `Player.equip(weapon_def)` — sets `self.weapon`, resets ammo, clears augments
-- [ ] Shotgun weapon definition — 2-shot mag, 4 pellets, 25° spread cone
-- [ ] `Bullet` accepts `radius`, `shape`, `color`; `draw()` handles `"circle"` and `"rect"` (rotated polygon)
+## Milestone 9 — Weapons ✓
+- [x] Weapons as data — move weapon stats out of `Player` into `WEAPONS` dict (`settings.py`)
+- [x] `Player.equip(weapon_def)` — sets `self.weapon`, resets ammo, clears augments
+- [x] Shotgun weapon definition — 2-shot mag, 4 pellets, 25° spread cone
+- [x] `Bullet` accepts `radius`, `shape`, `color`; `draw()` handles `"circle"` and `"rect"` (rotated polygon)
 
 ---
 

@@ -56,6 +56,8 @@ class Player(pygame.sprite.Sprite):
         self.shot_cooldown_base = weapon_def['shot_cooldown']
         self.damage = weapon_def['damage']
         self.ammo = self.mag_size
+        self.reloading = False
+        self.reload_progress = 0.0
         self.augments = []
 
     def take_damage(self, amount):

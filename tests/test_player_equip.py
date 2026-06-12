@@ -54,6 +54,14 @@ class TestPlayerEquip(unittest.TestCase):
         p.equip(WEAPONS['pistol'])
         self.assertEqual(p.augments, [])
 
+    def test_equip_clears_reload_state(self):
+        p = _player()
+        p.try_reload()
+        p.reload_progress = 0.5
+        p.equip(WEAPONS['shotgun'])
+        self.assertFalse(p.reloading)
+        self.assertEqual(p.reload_progress, 0.0)
+
     def test_try_fire_returns_list(self):
         p = _player()
         result = p.try_fire()
