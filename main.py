@@ -103,9 +103,12 @@ async def main():
                         if not (card['type'] == 'augment' and len(player.augments) >= 2):
                             _apply_reward_card(card, player)
                             reward_cards = []
-                            for e in list(enemies): e.kill()
-                            for p in list(enemy_projectiles): p.kill()
-                            for o in list(xp_orbs): o.kill()
+                            for e in list(enemies):
+                                e.kill()
+                            for p in list(enemy_projectiles):
+                                p.kill()
+                            for o in list(xp_orbs):
+                                o.kill()
                             run_manager.advance()
                             if run_manager.state == 'ENCOUNTER':
                                 player.heal(ROOM_HEAL_FRACTION)
@@ -116,9 +119,12 @@ async def main():
                         if not (card['type'] == 'augment' and len(player.augments) >= 2):
                             _apply_reward_card(card, player)
                             reward_cards = []
-                            for e in list(enemies): e.kill()
-                            for p in list(enemy_projectiles): p.kill()
-                            for o in list(xp_orbs): o.kill()
+                            for e in list(enemies):
+                                e.kill()
+                            for p in list(enemy_projectiles):
+                                p.kill()
+                            for o in list(xp_orbs):
+                                o.kill()
                             run_manager.advance()
                             if run_manager.state == 'ENCOUNTER':
                                 player.heal(ROOM_HEAL_FRACTION)

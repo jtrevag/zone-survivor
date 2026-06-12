@@ -1,4 +1,5 @@
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import pygame
 pygame.init()
@@ -173,7 +174,6 @@ class TestRandomStartingWeapon(unittest.TestCase):
         self.assertIn(p.weapon, WEAPONS.values())
 
     def test_multiple_starts_can_differ(self):
-        from settings import WEAPONS
         names = {_player().weapon['name'] for _ in range(30)}
         self.assertGreater(len(names), 1, "Starting weapon never varied across 30 instances")
 
