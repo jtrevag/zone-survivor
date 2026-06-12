@@ -20,6 +20,7 @@ PLAYER_SPEED = 200        # px/s
 PLAYER_RADIUS = 16
 PLAYER_INDICATOR_LENGTH = 24  # direction line length
 PLAYER_MAX_HP = 100
+ROOM_HEAL_FRACTION = 0.25   # fraction of max_hp restored on room start
 
 # Weapons — each entry is a complete weapon definition
 WEAPONS = {

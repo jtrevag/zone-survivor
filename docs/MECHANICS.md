@@ -29,6 +29,9 @@ Weapons are defined as data in `WEAPONS` dict in `settings.py`. Equipping a weap
 - Fires 4 pellets per shot in a 25° spread cone
 - Damage: 20 per pellet (up to 80 total at point-blank)
 
+### Room Transitions
+On advancing to the next room the player heals `ROOM_HEAL_FRACTION` (25%) of their max HP. Rewards room clears while keeping accumulated damage meaningful.
+
 ---
 
 ## Movement

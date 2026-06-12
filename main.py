@@ -5,7 +5,7 @@ from settings import (
     WIDTH, HEIGHT, FPS, TITLE, BACKGROUND_COLOR, UPGRADES,
     HIT_FLASH_COLOR, HIT_FLASH_DURATION, HIT_FLASH_ALPHA_MAX,
     SOUND_SAMPLE_RATE, SOUND_CHANNELS, SOUND_BUFFER_SIZE,
-    ROOM_SEQUENCE, WEAPONS,
+    ROOM_SEQUENCE, WEAPONS, ROOM_HEAL_FRACTION,
 )
 from systems.sound_manager import SoundManager
 from entities.player import Player
@@ -68,6 +68,8 @@ async def main():
                     for o in list(xp_orbs):
                         o.kill()
                     run_manager.advance()
+                    if run_manager.state == 'ENCOUNTER':
+                        player.heal(ROOM_HEAL_FRACTION)
             elif level_up:
                 if event.type == pygame.KEYDOWN:
                     idx = event.key - pygame.K_1
