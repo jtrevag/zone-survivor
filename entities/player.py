@@ -13,6 +13,10 @@ from settings import (
 )
 from entities.projectile import Bullet
 
+# Upgrade IDs that scale with the active weapon and must be replayed after equip.
+# 'speed' and 'hp' are player-wide and never reset, so they are excluded.
+_WEAPON_UPGRADE_IDS = frozenset({'mag', 'reload', 'damage', 'fire_rate'})
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -46,19 +50,37 @@ class Player(pygame.sprite.Sprite):
         self.just_hit = False
         self.reload_complete = False
 
+        self._ammo_by_weapon = {}   # weapon name → saved ammo
+        self._upgrade_history = []  # ordered list of applied upgrade IDs
         self.equip(WEAPONS['pistol'])
 
     def equip(self, weapon_def):
-        # TODO M10: replay self._upgrades_taken after equip so upgrades persist across weapon swaps
+        # Persist current weapon's ammo before switching
+        if hasattr(self, 'weapon'):
+            self._ammo_by_weapon[self.weapon['name']] = self.ammo
+
         self.weapon = weapon_def
         self.mag_size = weapon_def['mag_size']
         self.reload_time = weapon_def['reload_time']
         self.shot_cooldown_base = weapon_def['shot_cooldown']
         self.damage = weapon_def['damage']
-        self.ammo = self.mag_size
         self.reloading = False
         self.reload_progress = 0.0
         self.augments = []
+
+        # Replay weapon-specific upgrades on top of the new weapon's base stats
+        for uid in self._upgrade_history:
+            if uid in _WEAPON_UPGRADE_IDS:
+                self._apply_one_upgrade(uid)
+
+        # Restore saved ammo (or full mag if first equip), clamped to current mag_size
+        self.ammo = min(
+            self._ammo_by_weapon.get(weapon_def['name'], self.mag_size),
+            self.mag_size,
+        )
+
+    def heal(self, fraction):
+        self.hp = min(self.max_hp, self.hp + int(self.max_hp * fraction))
 
     def take_damage(self, amount):
         if self.dead:
@@ -79,6 +101,10 @@ class Player(pygame.sprite.Sprite):
             self.pending_level_up = True
 
     def apply_upgrade(self, upgrade_id):
+        self._upgrade_history.append(upgrade_id)
+        self._apply_one_upgrade(upgrade_id)
+
+    def _apply_one_upgrade(self, upgrade_id):
         if upgrade_id == 'mag':
             self.mag_size += UPGRADE_MAG_BONUS
             self.ammo = min(self.ammo + UPGRADE_MAG_BONUS, self.mag_size)

@@ -123,6 +123,57 @@ class TestPlayerEquip(unittest.TestCase):
         bullets = p.try_fire()
         self.assertEqual(bullets[0].damage, upgraded_damage)
 
+    def test_ammo_persists_after_weapon_swap(self):
+        p = _player()
+        p.try_fire()  # pistol: 5/6 ammo
+        ammo_before = p.ammo
+        p.equip(WEAPONS['shotgun'])
+        p.equip(WEAPONS['pistol'])
+        self.assertEqual(p.ammo, ammo_before)
+
+    def test_damage_upgrade_persists_after_weapon_swap(self):
+        p = _player()
+        p.apply_upgrade('damage')
+        expected_damage = p.damage
+        p.equip(WEAPONS['shotgun'])
+        p.equip(WEAPONS['pistol'])
+        self.assertEqual(p.damage, expected_damage)
+
+    def test_mag_upgrade_persists_after_weapon_swap(self):
+        p = _player()
+        p.apply_upgrade('mag')
+        expected_mag = p.mag_size
+        p.equip(WEAPONS['shotgun'])
+        p.equip(WEAPONS['pistol'])
+        self.assertEqual(p.mag_size, expected_mag)
+
+    def test_reload_upgrade_persists_after_weapon_swap(self):
+        p = _player()
+        p.apply_upgrade('reload')
+        expected_reload = p.reload_time
+        p.equip(WEAPONS['shotgun'])
+        p.equip(WEAPONS['pistol'])
+        self.assertAlmostEqual(p.reload_time, expected_reload)
+
+    def test_speed_upgrade_not_reset_by_equip(self):
+        p = _player()
+        p.apply_upgrade('speed')
+        expected_speed = p.move_speed
+        p.equip(WEAPONS['shotgun'])
+        self.assertAlmostEqual(p.move_speed, expected_speed)
+
+    def test_heal_restores_hp(self):
+        p = _player()
+        p.take_damage(50)
+        hp_before = p.hp
+        p.heal(0.25)
+        self.assertEqual(p.hp, hp_before + int(p.max_hp * 0.25))
+
+    def test_heal_clamps_to_max_hp(self):
+        p = _player()
+        p.heal(1.0)
+        self.assertEqual(p.hp, p.max_hp)
+
 
 if __name__ == '__main__':
     unittest.main()
