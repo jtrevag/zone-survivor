@@ -211,6 +211,72 @@ class HUD:
             self._cached_win_elapsed = elapsed_sec
         surface.blit(self._win_surf, (0, 0))
 
+    def draw_reward(self, surface, player, cards, mouse_pos):
+        hover_idx = self.hovered_upgrade(mouse_pos)
+        augments_full = len(player.augments) >= 2
+
+        self._overlay_surf.fill((0, 0, 0, 180))
+
+        title_surf, title_rect = self._font_large.render('ROOM CLEAR', (220, 220, 220))
+        self._overlay_surf.blit(title_surf, (
+            (WIDTH - title_rect.width) // 2,
+            self._card_rects[0].y - title_rect.height - 24,
+        ))
+
+        for i, (rect, card) in enumerate(zip(self._card_rects, cards)):
+            hovered = i == hover_idx
+            is_full = card['type'] == 'augment' and augments_full
+
+            bg_color = HUD_COLOR_CARD_BG
+            border_color = (80, 60, 60) if is_full else (HUD_COLOR_CARD_HOVER if hovered else HUD_COLOR_CARD_BORDER)
+            pygame.draw.rect(self._overlay_surf, bg_color, rect, border_radius=8)
+            pygame.draw.rect(self._overlay_surf, border_color, rect, width=2, border_radius=8)
+
+            key_surf, key_rect = self._font_small.render(str(i + 1), (160, 160, 200))
+            self._overlay_surf.blit(key_surf, (rect.right - key_rect.width - 8, rect.y + 8))
+
+            if card['type'] == 'weapon':
+                wdef = card['weapon_def']
+                name_surf, name_rect = self._font.render(
+                    f"SWAP → {wdef['name']}", (220, 220, 220))
+                self._overlay_surf.blit(name_surf, (rect.x + 12, rect.y + 20))
+
+                stats = (f"DMG {wdef['damage']}  "
+                         f"MAG {wdef['mag_size']}  "
+                         f"RLD {wdef['reload_time']:.1f}s")
+                stats_surf, _ = self._font_small.render(stats, (160, 160, 160))
+                self._overlay_surf.blit(stats_surf, (rect.x + 12, rect.y + 20 + name_rect.height + 8))
+
+                reset_surf, _ = self._font_small.render('Augments reset', (180, 80, 80))
+                self._overlay_surf.blit(reset_surf, (rect.x + 12, rect.bottom - 28))
+
+                carry_surf, _ = self._font_small.render('Upgrades carry over', (100, 130, 100))
+                self._overlay_surf.blit(carry_surf, (rect.x + 12, rect.bottom - 14))
+
+            else:
+                adef = card['augment_def']
+                name_color = (120, 120, 120) if is_full else (220, 220, 220)
+                name_surf, name_rect = self._font.render(adef['name'], name_color)
+                self._overlay_surf.blit(name_surf, (rect.x + 12, rect.y + 20))
+
+                desc_surf, _ = self._font_small.render(adef['desc'], (160, 160, 160))
+                self._overlay_surf.blit(desc_surf, (rect.x + 12, rect.y + 20 + name_rect.height + 8))
+
+                if is_full:
+                    full_surf, _ = self._font_small.render('FULL', (180, 80, 80))
+                    self._overlay_surf.blit(full_surf, (rect.x + 12, rect.bottom - 22))
+                else:
+                    attach_text = f"Attaches to {player.weapon['name']}"
+                    attach_surf, _ = self._font_small.render(attach_text, (100, 100, 130))
+                    self._overlay_surf.blit(attach_surf, (rect.x + 12, rect.bottom - 22))
+
+        hint_surf, hint_rect = self._font_small.render(
+            'Press 1 / 2 / 3  or  click a card', (140, 140, 140))
+        hint_y = self._card_rects[0].y + HUD_UPGRADE_CARD_H + 12
+        self._overlay_surf.blit(hint_surf, ((WIDTH - hint_rect.width) // 2, hint_y))
+
+        surface.blit(self._overlay_surf, (0, 0))
+
     def draw_room_clear(self, surface):
         if self._room_clear_surf is None:
             surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)

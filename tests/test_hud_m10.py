@@ -39,5 +39,30 @@ class TestHudAugmentSquares(unittest.TestCase):
         self.assertEqual(p.effective_mag_size(), p.mag_size * 2)
 
 
+class TestDrawReward(unittest.TestCase):
+    def _cards(self):
+        from settings import AUGMENTS, WEAPONS
+        return [
+            {'type': 'weapon', 'weapon_def': WEAPONS['shotgun']},
+            {'type': 'augment', 'augment_def': AUGMENTS['drum_mag']},
+            {'type': 'augment', 'augment_def': AUGMENTS['fast_loader']},
+        ]
+
+    def test_draw_reward_does_not_raise(self):
+        hud = _hud()
+        surf = pygame.Surface((1280, 720))
+        p = _player()
+        hud.draw_reward(surf, p, self._cards(), (0, 0))
+
+    def test_draw_reward_with_full_augments_does_not_raise(self):
+        from settings import AUGMENTS
+        hud = _hud()
+        surf = pygame.Surface((1280, 720))
+        p = _player()
+        p.equip_augment(AUGMENTS['drum_mag'])
+        p.equip_augment(AUGMENTS['fast_loader'])
+        hud.draw_reward(surf, p, self._cards(), (0, 0))
+
+
 if __name__ == '__main__':
     unittest.main()
