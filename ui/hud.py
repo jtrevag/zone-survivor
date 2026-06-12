@@ -124,9 +124,9 @@ class HUD:
         self._draw_bar(surface, self._xp_bar_rect, xp_ratio, HUD_COLOR_XP_FILL, HUD_COLOR_XP_BG)
 
         # Ammo label + reload bar
-        ammo_key = (player.ammo, player.mag_size)
+        ammo_key = (player.ammo, player.effective_mag_size())
         if ammo_key != self._cached_ammo_key:
-            self._label, _ = self._font.render(f"{player.ammo} / {player.mag_size}", HUD_COLOR_AMMO)
+            self._label, _ = self._font.render(f"{player.ammo} / {player.effective_mag_size()}", HUD_COLOR_AMMO)
             self._cached_ammo_key = ammo_key
         surface.blit(self._label, (HUD_MARGIN, self._label_y))
         reload_ratio = player.reload_progress if player.reloading else 0.0
@@ -139,6 +139,16 @@ class HUD:
             self._weapon_label, _ = self._font_small.render(weapon_name, (160, 160, 160))
             self._cached_weapon_name = weapon_name
         surface.blit(self._weapon_label, (HUD_MARGIN, self._weapon_label_y))
+
+        # Augment slot squares — 2 slots always shown, filled = augment color, empty = outline
+        sq_x = HUD_MARGIN + self._weapon_label.get_width() + 6
+        sq_y = self._weapon_label_y + (self._weapon_label.get_height() - 10) // 2
+        for i in range(2):
+            sq_rect = pygame.Rect(sq_x + i * 14, sq_y, 10, 10)
+            if i < len(player.augments):
+                pygame.draw.rect(surface, player.augments[i]['color'], sq_rect)
+            else:
+                pygame.draw.rect(surface, (60, 60, 60), sq_rect, 1)
 
     def hovered_upgrade(self, pos):
         """Return index (0-2) of card under pos, or -1."""
