@@ -128,9 +128,10 @@ class Player(pygame.sprite.Sprite):
         self._shot_cooldown = self.shot_cooldown_base
 
         weapon = self.weapon
-        pellets = weapon['pellets']
+        pellets = self.effective_pellets()
         spread = weapon['spread']
         bdef = weapon['bullet']
+        pierce_count, pierce_damage_mult = self.effective_pierce()
 
         if pellets == 1 or spread == 0.0:
             directions = [pygame.math.Vector2(self.facing)]
@@ -147,7 +148,11 @@ class Player(pygame.sprite.Sprite):
             ]
 
         return [
-            Bullet(self.pos, d, self.damage, bdef['radius'], bdef['color'], bdef['shape'], bdef['speed'])
+            Bullet(
+                self.pos, d, self.effective_damage(),
+                bdef['radius'], bdef['color'], bdef['shape'], bdef['speed'],
+                pierce_count=pierce_count, pierce_damage_mult=pierce_damage_mult,
+            )
             for d in directions
         ]
 
@@ -210,9 +215,9 @@ class Player(pygame.sprite.Sprite):
             self._shot_cooldown = max(0.0, self._shot_cooldown - dt)
 
         if self.reloading:
-            self.reload_progress = min(1.0, self.reload_progress + dt / self.reload_time)
+            self.reload_progress = min(1.0, self.reload_progress + dt / self.effective_reload_time())
             if self.reload_progress >= 1.0:
-                self.ammo = self.mag_size
+                self.ammo = self.effective_mag_size()
                 self.reloading = False
                 self.reload_complete = True
 
