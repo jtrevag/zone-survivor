@@ -4,6 +4,14 @@ Track what changed, when, and why. Format: `## vX.X — YYYY-MM-DD`
 
 ---
 
+## v1.0 — 2026-06-11
+- Milestone 8: run structure
+- `systems/run_manager.py`: new — `SurviveRoom`, `KillCountRoom`, `BossRoom` room classes with per-room difficulty and randomised mutant ratio; `RunManager` state machine (`ENCOUNTER → REWARD → WIN / GAME_OVER`)
+- `systems/wave_manager.py`: removed time-based `WAVE_TABLE`; now a stateless params holder — `difficulty` scales `spawn_interval` (÷) and `hp_mult` (×); `mutant_ratio` passed per-room
+- `settings.py`: removed `Wave`, `WAVE_TABLE`, `WIN_TIME`; added `BASE_SPAWN_INTERVAL`, `BASE_HP_MULT`, `DEFAULT_MUTANT_RATIO`, `ROOM_MUTANT_RATIO_MIN/MAX`, `ROOM_SEQUENCE` (3-room run)
+- `ui/hud.py`: `draw()` now accepts room object — timer shows per-room countdown (survive) or kills remaining (kill count); added `draw_room_clear()` overlay
+- `main.py`: `game_over`/`game_won` booleans replaced by `run_manager.state`; added `xp_orbs` group; SPACE advances from reward screen; enemies/projectiles/orbs cleared between rooms
+
 ## v0.9 — 2026-06-11
 - Web deploy: playable HTML5 prototype on itch.io via Pygbag (WASM)
 - `main.py`: refactored `main()` to `async def`, added `await asyncio.sleep(0)` per frame, changed entry point to `asyncio.run(main())` — required for Pygbag/browser event loop

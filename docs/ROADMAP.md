@@ -70,13 +70,13 @@ Milestones are ordered by dependency. Each milestone should be playable/testable
 
 ---
 
-## Milestone 8 — Run Structure
-- [ ] `RunManager` (`systems/run_manager.py`) — state machine: `ENCOUNTER → ROOM_COMPLETE → REWARD → ... → WIN`
-- [ ] Room types: `survive` (elapsed ≥ duration), `kill_count` (kills ≥ target), `boss` (all bosses dead)
-- [ ] 3-room + boss sequence in `settings.py` (`ROOM_SEQUENCE`); difficulty maps to `WaveManager` time offset
-- [ ] `WaveManager` accepts `time_offset` param — initialises `self.elapsed = time_offset`
-- [ ] Room reset between rooms — clear enemies, projectiles, XP orbs; player HP and weapon carry over
-- [ ] Replace `game_over`/`game_won` flags in `main.py` with `run_manager.state`
+## Milestone 8 — Run Structure ✓
+- [x] `RunManager` (`systems/run_manager.py`) — state machine: `ENCOUNTER → REWARD → ... → WIN`
+- [x] Room types: `survive` (elapsed ≥ duration), `kill_count` (kills ≥ target), `boss` (stub, M11)
+- [x] 3-room sequence in `settings.py` (`ROOM_SEQUENCE`); per-room difficulty multiplier
+- [x] `WaveManager` simplified — stateless params holder; difficulty float replaces `time_offset`
+- [x] Room reset between rooms — clear enemies, projectiles, XP orbs; player HP/XP/upgrades carry
+- [x] Replace `game_over`/`game_won` flags in `main.py` with `run_manager.state`
 
 ---
 

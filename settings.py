@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 # Window / loop
 WIDTH = 1280
 HEIGHT = 720
@@ -22,37 +20,18 @@ PLAYER_SPEED = 200        # px/s
 PLAYER_RADIUS = 16
 PLAYER_INDICATOR_LENGTH = 24  # direction line length
 PLAYER_MAX_HP = 100
-PLAYER_DAMAGE = 40
-PLAYER_MAG_SIZE = 5
-PLAYER_RELOAD_TIME = 2.0  # seconds
+PLAYER_DAMAGE = 55
+PLAYER_MAG_SIZE = 6
+PLAYER_RELOAD_TIME = 1.2  # seconds
 PLAYER_SHOT_COOLDOWN = 0.4  # seconds
 
 # Mutant
 MUTANT_COLOR = (180, 40, 40)
 MUTANT_SIZE = 20
 MUTANT_SPEED = 140        # px/s
-MUTANT_MAX_HP = 35
+MUTANT_MAX_HP = 25
 MUTANT_CONTACT_DAMAGE = 15
 MUTANT_CONTACT_COOLDOWN = 0.5  # seconds
-
-
-@dataclass(frozen=True)
-class Wave:
-    minute: float
-    spawn_interval: float
-    mutant_ratio: float
-    hp_mult: float
-
-
-WAVE_TABLE = [
-    Wave(minute=0,  spawn_interval=3.0, mutant_ratio=0.20, hp_mult=1.0),
-    Wave(minute=2,  spawn_interval=2.0, mutant_ratio=0.30, hp_mult=1.0),
-    Wave(minute=4,  spawn_interval=1.5, mutant_ratio=0.40, hp_mult=1.2),
-    Wave(minute=6,  spawn_interval=1.0, mutant_ratio=0.50, hp_mult=1.5),
-    Wave(minute=10, spawn_interval=0.7, mutant_ratio=0.60, hp_mult=2.0),
-]
-
-WIN_TIME = 1200.0  # 20 minutes in seconds
 
 HIT_FLASH_DURATION = 0.15   # seconds
 HIT_FLASH_COLOR = (220, 40, 40)
@@ -61,6 +40,22 @@ HIT_FLASH_ALPHA_MAX = 100   # 0–255
 SOUND_SAMPLE_RATE = 44100
 SOUND_CHANNELS = 2
 SOUND_BUFFER_SIZE = 512
+
+# Wave difficulty base values (scaled per room by difficulty multiplier)
+BASE_SPAWN_INTERVAL = 2.2   # seconds between spawns at difficulty 1.0
+BASE_HP_MULT = 1.0           # enemy HP multiplier at difficulty 1.0
+DEFAULT_MUTANT_RATIO = 0.4  # fallback when no room-level ratio is set
+
+# Per-room mutant spawn ratio (randomised within this range each room)
+ROOM_MUTANT_RATIO_MIN = 0.2
+ROOM_MUTANT_RATIO_MAX = 0.8
+
+# Room sequence for a full run (boss room added in Milestone 11)
+ROOM_SEQUENCE = [
+    {'type': 'survive',    'duration': 90,  'difficulty': 1.0},
+    {'type': 'kill_count', 'target': 25,    'difficulty': 1.4},
+    {'type': 'survive',    'duration': 60,  'difficulty': 1.8},
+]
 
 # Bullet
 BULLET_SPEED = 500        # px/s
@@ -71,7 +66,7 @@ BULLET_COLOR = (255, 255, 0)  # yellow
 BANDIT_COLOR = (60, 100, 220)
 BANDIT_SIZE = 24
 BANDIT_SPEED = 60
-BANDIT_MAX_HP = 80
+BANDIT_MAX_HP = 55
 BANDIT_PREFERRED_RANGE = 250
 BANDIT_RESUME_CHASE_RANGE = 300
 BANDIT_PREFERRED_RANGE_SQ = BANDIT_PREFERRED_RANGE ** 2
@@ -90,11 +85,11 @@ XP_ORB_PICKUP_RADIUS = 20
 XP_ORB_PICKUP_RADIUS_SQ = XP_ORB_PICKUP_RADIUS ** 2
 
 # Enemy XP values
-MUTANT_XP_VALUE = 5
-BANDIT_XP_VALUE = 10
+MUTANT_XP_VALUE = 8
+BANDIT_XP_VALUE = 15
 
 # XP / leveling
-XP_PER_LEVEL_BASE = 50          # xp_to_next = 50 * current_level
+XP_PER_LEVEL_BASE = 35          # xp_to_next = 35 * current_level
 
 # Upgrade multipliers
 UPGRADE_MAG_BONUS      = 2

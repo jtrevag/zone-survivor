@@ -59,7 +59,7 @@ class HUD:
         ]
 
         # Timer — top-center
-        self._cached_elapsed_sec = -1
+        self._cached_timer_text = -1
         self._timer_surf = None
 
         # Pre-allocated surfaces
@@ -89,17 +89,17 @@ class HUD:
         surf.blit(hint_surf, ((WIDTH - hint_rect.width) // 2, HEIGHT // 2 + 44))
         return surf
 
-    def draw(self, surface, player, elapsed=0.0):
-        # Timer — top-center
-        elapsed_sec = int(elapsed)
-        if elapsed_sec != self._cached_elapsed_sec:
-            m, s = divmod(elapsed_sec, 60)
-            self._timer_surf, _ = self._font.render(f"{m}:{s:02d}", HUD_COLOR_AMMO)
-            self._cached_elapsed_sec = elapsed_sec
-        surface.blit(self._timer_surf, (
-            (WIDTH - self._timer_surf.get_width()) // 2,
-            HUD_MARGIN,
-        ))
+    def draw(self, surface, player, room=None):
+        # Timer — top-center (text supplied by room; None hides it)
+        if room is not None and room.timer_display is not None:
+            timer_text = room.timer_display
+            if timer_text != self._cached_timer_text:
+                self._timer_surf, _ = self._font.render(timer_text, HUD_COLOR_AMMO)
+                self._cached_timer_text = timer_text
+            surface.blit(self._timer_surf, (
+                (WIDTH - self._timer_surf.get_width()) // 2,
+                HUD_MARGIN,
+            ))
 
         # HP label + bar
         if player.hp != self._cached_hp:
@@ -187,3 +187,17 @@ class HUD:
                 "YOU SURVIVED", (220, 200, 40), elapsed_sec)
             self._cached_win_elapsed = elapsed_sec
         surface.blit(self._win_surf, (0, 0))
+
+    def draw_room_clear(self, surface):
+        self._overlay_surf.fill((0, 0, 0, 160))
+        title_surf, title_rect = self._font_large.render('ROOM CLEAR', (220, 220, 220))
+        self._overlay_surf.blit(title_surf, (
+            (WIDTH - title_rect.width) // 2,
+            HEIGHT // 2 - 60,
+        ))
+        sub_surf, _ = self._font.render('Press SPACE to continue', (160, 160, 160))
+        self._overlay_surf.blit(sub_surf, (
+            (WIDTH - sub_surf.get_width()) // 2,
+            HEIGHT // 2 + 10,
+        ))
+        surface.blit(self._overlay_surf, (0, 0))
