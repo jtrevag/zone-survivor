@@ -48,6 +48,11 @@ class HUD:
         self._label = None
         self._bar_rect = pygame.Rect(HUD_MARGIN, bar_y, HUD_BAR_WIDTH, HUD_BAR_HEIGHT)
 
+        # Weapon name label — above ammo counter
+        self._weapon_label_y = self._label_y - _line_h - 4
+        self._cached_weapon_name = None
+        self._weapon_label = None
+
         # Level-up card rects (fixed positions, computed once)
         total_w = 3 * HUD_UPGRADE_CARD_W + 2 * HUD_UPGRADE_CARD_GAP
         start_x = (WIDTH - total_w) // 2
@@ -127,6 +132,13 @@ class HUD:
         reload_ratio = player.reload_progress if player.reloading else 0.0
         self._draw_bar(surface, self._bar_rect, reload_ratio,
                        HUD_COLOR_RELOAD_FILL, HUD_COLOR_RELOAD_BG)
+
+        # Weapon name
+        weapon_name = player.weapon['name']
+        if weapon_name != self._cached_weapon_name:
+            self._weapon_label, _ = self._font_small.render(weapon_name, (160, 160, 160))
+            self._cached_weapon_name = weapon_name
+        surface.blit(self._weapon_label, (HUD_MARGIN, self._weapon_label_y))
 
     def hovered_upgrade(self, pos):
         """Return index (0-2) of card under pos, or -1."""
