@@ -227,3 +227,33 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.circle(surface, WHITE, center, PLAYER_RADIUS)
         tip = pygame.math.Vector2(center) + self.facing * PLAYER_INDICATOR_LENGTH
         pygame.draw.line(surface, INDICATOR_COLOR, center, tip, 2)
+
+    def draw_laser(self, surface, enemies):
+        """Draw laser pointer line if laser_pointer augment is active."""
+        if not any(a.get('id') == 'laser_pointer' for a in self.augments):
+            return
+
+        MAX_RANGE = 300
+        start = pygame.math.Vector2(self.rect.center)
+        end = start + self.facing * MAX_RANGE
+
+        nearest_end = end
+        nearest_dist_sq = MAX_RANGE * MAX_RANGE + 1
+        for enemy in enemies:
+            hit = enemy.rect.clipline(
+                (int(start.x), int(start.y)),
+                (int(end.x), int(end.y)),
+            )
+            if hit:
+                hit_pt = pygame.math.Vector2(hit[0])
+                dist_sq = (hit_pt - start).length_squared()
+                if dist_sq < nearest_dist_sq:
+                    nearest_dist_sq = dist_sq
+                    nearest_end = hit_pt
+
+        laser_surf = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+        sx, sy = int(start.x), int(start.y)
+        ex, ey = int(nearest_end.x), int(nearest_end.y)
+        pygame.draw.line(laser_surf, (180, 0, 0, 80), (sx, sy), (ex, ey), 3)
+        pygame.draw.line(laser_surf, (255, 60, 60, 220), (sx, sy), (ex, ey), 1)
+        surface.blit(laser_surf, (0, 0))

@@ -142,6 +142,7 @@ async def main():
         screen.fill(BACKGROUND_COLOR)
         for entity in all_sprites:
             entity.draw(screen)
+        player.draw_laser(screen, enemies)
         hud.draw(screen, player, run_manager.current_room)
 
         if player.hit_flash_timer > 0:

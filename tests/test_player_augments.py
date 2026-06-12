@@ -148,6 +148,24 @@ class TestTryFireEffectiveMethods(unittest.TestCase):
         self.assertFalse(p.reload_complete)
 
 
+class TestDrawLaser(unittest.TestCase):
+    def test_draw_laser_does_not_raise_without_augment(self):
+        import pygame
+        p = _player()
+        surf = pygame.Surface((1280, 720))
+        enemies = pygame.sprite.Group()
+        p.draw_laser(surf, enemies)
+
+    def test_draw_laser_does_not_raise_with_laser_augment(self):
+        import pygame
+        from settings import AUGMENTS
+        p = _player()
+        p.equip_augment(AUGMENTS['laser_pointer'])
+        surf = pygame.Surface((1280, 720))
+        enemies = pygame.sprite.Group()
+        p.draw_laser(surf, enemies)
+
+
 class TestRandomStartingWeapon(unittest.TestCase):
     def test_starting_weapon_is_valid(self):
         from settings import WEAPONS
