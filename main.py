@@ -109,14 +109,17 @@ async def main():
                                mutant_ratio=wp['mutant_ratio'],
                                hp_mult=wp['hp_mult'])
 
-            hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
-            for bullet, hit_enemies in hits.items():
-                for enemy in hit_enemies:
-                    if enemy.take_damage(bullet.damage):
+            for bullet in list(bullets):
+                for enemy in pygame.sprite.spritecollide(bullet, enemies, False):
+                    bullet_died = bullet.on_hit(enemy)
+                    if not enemy.alive():
                         orb = XPOrb(enemy.pos, enemy.xp_value)
                         all_sprites.add(orb)
                         xp_orbs.add(orb)
                         run_manager.record_kill()
+                    if bullet_died:
+                        bullet.kill()
+                        break
 
             for proj in pygame.sprite.spritecollide(player, enemy_projectiles, True):
                 player.take_damage(proj.damage)
