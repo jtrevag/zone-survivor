@@ -151,6 +151,38 @@ class Player(pygame.sprite.Sprite):
             for d in directions
         ]
 
+    def equip_augment(self, augment_def):
+        if len(self.augments) < 2:
+            self.augments.append(augment_def)
+
+    def effective_damage(self):
+        m = 1.0
+        for a in self.augments:
+            m *= a.get('damage_mult', 1.0)
+        return int(self.damage * m)
+
+    def effective_reload_time(self):
+        m = 1.0
+        for a in self.augments:
+            m *= a.get('reload_time_mult', 1.0)
+        return self.reload_time * m
+
+    def effective_mag_size(self):
+        m = 1.0
+        for a in self.augments:
+            m *= a.get('mag_size_mult', 1.0)
+        return int(self.mag_size * m)
+
+    def effective_pellets(self):
+        bonus = sum(a.get('pellet_bonus', 0) for a in self.augments)
+        return self.weapon['pellets'] + bonus
+
+    def effective_pierce(self):
+        for a in self.augments:
+            if 'pierce_count' in a:
+                return a['pierce_count'], a.get('pierce_damage_mult', 0.5)
+        return 0, 0.5
+
     def try_reload(self):
         if not self.reloading:
             self.reloading = True
