@@ -20,10 +20,40 @@ PLAYER_SPEED = 200        # px/s
 PLAYER_RADIUS = 16
 PLAYER_INDICATOR_LENGTH = 24  # direction line length
 PLAYER_MAX_HP = 100
-PLAYER_DAMAGE = 55
-PLAYER_MAG_SIZE = 6
-PLAYER_RELOAD_TIME = 1.2  # seconds
-PLAYER_SHOT_COOLDOWN = 0.4  # seconds
+
+# Weapons — each entry is a complete weapon definition
+WEAPONS = {
+    'pistol': {
+        'name': 'Pistol',
+        'damage': 55,
+        'mag_size': 6,
+        'reload_time': 1.2,
+        'shot_cooldown': 0.4,
+        'pellets': 1,
+        'spread': 0.0,
+        'bullet': {
+            'speed': 500,
+            'radius': 4,
+            'color': (255, 255, 0),
+            'shape': 'circle',
+        },
+    },
+    'shotgun': {
+        'name': 'Shotgun',
+        'damage': 20,
+        'mag_size': 2,
+        'reload_time': 1.8,
+        'shot_cooldown': 0.6,
+        'pellets': 4,
+        'spread': 25.0,
+        'bullet': {
+            'speed': 500,
+            'radius': 4,
+            'color': (255, 165, 0),
+            'shape': 'circle',
+        },
+    },
+}
 
 # Mutant
 MUTANT_COLOR = (180, 40, 40)
@@ -56,11 +86,6 @@ ROOM_SEQUENCE = [
     {'type': 'kill_count', 'target': 25,    'difficulty': 1.4},
     {'type': 'survive',    'duration': 60,  'difficulty': 1.8},
 ]
-
-# Bullet
-BULLET_SPEED = 500        # px/s
-BULLET_RADIUS = 4
-BULLET_COLOR = (255, 255, 0)  # yellow
 
 # Bandit
 BANDIT_COLOR = (60, 100, 220)
