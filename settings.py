@@ -32,6 +32,7 @@ WEAPONS = {
         'shot_cooldown': 0.4,
         'pellets': 1,
         'spread': 0.0,
+        'augments': ['laser_pointer', 'fast_loader', 'hollow_point', 'drum_mag'],
         'bullet': {
             'speed': 500,
             'radius': 4,
@@ -47,12 +48,51 @@ WEAPONS = {
         'shot_cooldown': 0.6,
         'pellets': 4,
         'spread': 25.0,
+        'augments': ['laser_pointer', 'fast_loader', 'more_pellets', 'drum_mag'],
         'bullet': {
             'speed': 500,
             'radius': 4,
             'color': (255, 165, 0),
             'shape': 'circle',
         },
+    },
+}
+
+AUGMENTS = {
+    'laser_pointer': {
+        'id': 'laser_pointer',
+        'name': 'Laser Sight',
+        'desc': 'Shows aiming line to target',
+        'color': (200, 80, 80),
+    },
+    'fast_loader': {
+        'id': 'fast_loader',
+        'name': 'Fast Loader',
+        'desc': '-25% reload time',
+        'reload_time_mult': 0.75,
+        'color': (80, 200, 200),
+    },
+    'hollow_point': {
+        'id': 'hollow_point',
+        'name': 'Hollow Point',
+        'desc': 'Bullets pierce one enemy (50% dmg)',
+        'pierce_count': 1,
+        'pierce_damage_mult': 0.5,
+        'color': (220, 180, 40),
+    },
+    'drum_mag': {
+        'id': 'drum_mag',
+        'name': 'Drum Mag',
+        'desc': 'Double mag size on reload',
+        'mag_size_mult': 2.0,
+        'color': (120, 200, 80),
+    },
+    'more_pellets': {
+        'id': 'more_pellets',
+        'name': 'More Pellets',
+        'desc': '+2 pellets, same spread',
+        'pellet_bonus': 2,
+        'color': (200, 120, 40),
     },
 }
 

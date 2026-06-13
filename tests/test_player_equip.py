@@ -15,9 +15,10 @@ def _player():
 
 
 class TestPlayerEquip(unittest.TestCase):
-    def test_player_starts_with_pistol(self):
+    def test_player_starts_with_valid_weapon(self):
+        from settings import WEAPONS
         p = _player()
-        self.assertEqual(p.weapon, WEAPONS['pistol'])
+        self.assertIn(p.weapon, WEAPONS.values())
 
     def test_player_has_augments_list(self):
         p = _player()
@@ -45,6 +46,7 @@ class TestPlayerEquip(unittest.TestCase):
 
     def test_equip_resets_ammo_to_mag_size(self):
         p = _player()
+        p.equip(WEAPONS['pistol'])
         p.ammo = 0
         p.equip(WEAPONS['shotgun'])
         self.assertEqual(p.ammo, WEAPONS['shotgun']['mag_size'])
@@ -70,6 +72,7 @@ class TestPlayerEquip(unittest.TestCase):
 
     def test_pistol_fires_one_bullet(self):
         p = _player()
+        p.equip(WEAPONS['pistol'])
         bullets = p.try_fire()
         self.assertEqual(len(bullets), 1)
 
@@ -125,6 +128,7 @@ class TestPlayerEquip(unittest.TestCase):
 
     def test_ammo_persists_after_weapon_swap(self):
         p = _player()
+        p.equip(WEAPONS['pistol'])
         p.try_fire()  # pistol: 5/6 ammo
         ammo_before = p.ammo
         p.equip(WEAPONS['shotgun'])
@@ -133,6 +137,7 @@ class TestPlayerEquip(unittest.TestCase):
 
     def test_damage_upgrade_persists_after_weapon_swap(self):
         p = _player()
+        p.equip(WEAPONS['pistol'])
         p.apply_upgrade('damage')
         expected_damage = p.damage
         p.equip(WEAPONS['shotgun'])
@@ -141,6 +146,7 @@ class TestPlayerEquip(unittest.TestCase):
 
     def test_mag_upgrade_persists_after_weapon_swap(self):
         p = _player()
+        p.equip(WEAPONS['pistol'])
         p.apply_upgrade('mag')
         expected_mag = p.mag_size
         p.equip(WEAPONS['shotgun'])
@@ -149,6 +155,7 @@ class TestPlayerEquip(unittest.TestCase):
 
     def test_reload_upgrade_persists_after_weapon_swap(self):
         p = _player()
+        p.equip(WEAPONS['pistol'])
         p.apply_upgrade('reload')
         expected_reload = p.reload_time
         p.equip(WEAPONS['shotgun'])

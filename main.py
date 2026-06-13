@@ -5,7 +5,7 @@ from settings import (
     WIDTH, HEIGHT, FPS, TITLE, BACKGROUND_COLOR, UPGRADES,
     HIT_FLASH_COLOR, HIT_FLASH_DURATION, HIT_FLASH_ALPHA_MAX,
     SOUND_SAMPLE_RATE, SOUND_CHANNELS, SOUND_BUFFER_SIZE,
-    ROOM_SEQUENCE, WEAPONS, ROOM_HEAL_FRACTION,
+    ROOM_SEQUENCE, WEAPONS, AUGMENTS, ROOM_HEAL_FRACTION,
 )
 from systems.sound_manager import SoundManager
 from entities.player import Player
@@ -13,6 +13,27 @@ from entities.xp_orb import XPOrb
 from systems.spawner import Spawner
 from systems.run_manager import RunManager
 from ui.hud import HUD
+
+
+def _generate_reward_cards(player):
+    """1 weapon card + 2 augment cards from current weapon's pool."""
+    other_weapon = next(w for w in WEAPONS.values() if w is not player.weapon)
+    weapon_card = {'type': 'weapon', 'weapon_def': other_weapon}
+    pool_ids = player.weapon['augments']
+    equipped_ids = {a['id'] for a in player.augments}
+    available = [AUGMENTS[aid] for aid in pool_ids if aid not in equipped_ids]
+    aug_cards = [
+        {'type': 'augment', 'augment_def': a}
+        for a in random.sample(available, min(2, len(available)))
+    ]
+    return [weapon_card] + aug_cards
+
+
+def _apply_reward_card(card, player):
+    if card['type'] == 'weapon':
+        player.equip(card['weapon_def'])
+    elif card['type'] == 'augment':
+        player.equip_augment(card['augment_def'])
 
 
 def new_game():
@@ -46,30 +67,68 @@ async def main():
     player, all_sprites, enemies, bullets, enemy_projectiles, xp_orbs, spawner, run_manager = new_game()
     level_up = False
     pending_upgrades = []
+    paused = False
+    reward_cards = []
 
     running = True
     while running:
         dt = min(clock.tick(FPS) / 1000.0, 0.05)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+            if event.type == pygame.QUIT:
                 running = False
+
+            elif paused:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        paused = False
+                    elif event.key == pygame.K_q:
+                        running = False
+
             elif run_manager.state in ('WIN', 'GAME_OVER'):
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
                     player, all_sprites, enemies, bullets, enemy_projectiles, xp_orbs, spawner, run_manager = new_game()
                     level_up = False
                     pending_upgrades = []
+                    paused = False
+                    reward_cards = []
+
             elif run_manager.state == 'REWARD':
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    for e in list(enemies):
-                        e.kill()
-                    for p in list(enemy_projectiles):
-                        p.kill()
-                    for o in list(xp_orbs):
-                        o.kill()
-                    run_manager.advance()
-                    if run_manager.state == 'ENCOUNTER':
-                        player.heal(ROOM_HEAL_FRACTION)
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    paused = not paused
+                elif event.type == pygame.KEYDOWN:
+                    idx = event.key - pygame.K_1
+                    if 0 <= idx < len(reward_cards):
+                        card = reward_cards[idx]
+                        if not (card['type'] == 'augment' and len(player.augments) >= 2):
+                            _apply_reward_card(card, player)
+                            reward_cards = []
+                            for e in list(enemies):
+                                e.kill()
+                            for p in list(enemy_projectiles):
+                                p.kill()
+                            for o in list(xp_orbs):
+                                o.kill()
+                            run_manager.advance()
+                            if run_manager.state == 'ENCOUNTER':
+                                player.heal(ROOM_HEAL_FRACTION)
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    idx = hud.hovered_upgrade(event.pos)
+                    if idx >= 0 and idx < len(reward_cards):
+                        card = reward_cards[idx]
+                        if not (card['type'] == 'augment' and len(player.augments) >= 2):
+                            _apply_reward_card(card, player)
+                            reward_cards = []
+                            for e in list(enemies):
+                                e.kill()
+                            for p in list(enemy_projectiles):
+                                p.kill()
+                            for o in list(xp_orbs):
+                                o.kill()
+                            run_manager.advance()
+                            if run_manager.state == 'ENCOUNTER':
+                                player.heal(ROOM_HEAL_FRACTION)
+
             elif level_up:
                 if event.type == pygame.KEYDOWN:
                     idx = event.key - pygame.K_1
@@ -81,9 +140,20 @@ async def main():
                     if idx >= 0:
                         player.apply_upgrade(pending_upgrades[idx]['id'])
                         level_up = False
-            else:
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
-                    player.try_reload()
+
+            else:  # ENCOUNTER, not paused, not level_up
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        paused = not paused
+                    elif event.key == pygame.K_r:
+                        player.try_reload()
+                    # DEV ONLY — Tab toggles weapon for testing
+                    elif event.key == pygame.K_TAB:
+                        if player.weapon is WEAPONS['pistol']:
+                            player.equip(WEAPONS['shotgun'])
+                        else:
+                            player.equip(WEAPONS['pistol'])
+                        print(f"[DEV] weapon: {player.weapon['name']}")
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     fired = player.try_fire()
                     if fired:
@@ -91,17 +161,15 @@ async def main():
                             all_sprites.add(bullet)
                             bullets.add(bullet)
                         sounds.play_gunshot()
-                # DEV ONLY — remove in M10 when reward screen handles weapon equip
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
-                    if player.weapon is WEAPONS['pistol']:
-                        player.equip(WEAPONS['shotgun'])
-                    else:
-                        player.equip(WEAPONS['pistol'])
-                    print(f"[DEV] weapon: {player.weapon['name']}")
 
-        if run_manager.state == 'ENCOUNTER' and not level_up:
+        if run_manager.state == 'ENCOUNTER' and not level_up and not paused:
             run_manager.update(dt)
             all_sprites.update(dt, player)
+
+            # Generate reward cards the frame the room completes
+            if run_manager.state == 'REWARD' and not reward_cards:
+                reward_cards = _generate_reward_cards(player)
+
             if run_manager.current_room.spawns_waves:
                 wp = run_manager.wave_manager.params
                 spawner.update(dt, all_sprites, enemies, enemy_projectiles,
@@ -109,14 +177,17 @@ async def main():
                                mutant_ratio=wp['mutant_ratio'],
                                hp_mult=wp['hp_mult'])
 
-            hits = pygame.sprite.groupcollide(bullets, enemies, True, False)
-            for bullet, hit_enemies in hits.items():
-                for enemy in hit_enemies:
-                    if enemy.take_damage(bullet.damage):
+            for bullet in list(bullets):
+                for enemy in pygame.sprite.spritecollide(bullet, enemies, False):
+                    bullet_died = bullet.on_hit(enemy)
+                    if not enemy.alive():
                         orb = XPOrb(enemy.pos, enemy.xp_value)
                         all_sprites.add(orb)
                         xp_orbs.add(orb)
                         run_manager.record_kill()
+                    if bullet_died:
+                        bullet.kill()
+                        break
 
             for proj in pygame.sprite.spritecollide(player, enemy_projectiles, True):
                 player.take_damage(proj.damage)
@@ -139,6 +210,7 @@ async def main():
         screen.fill(BACKGROUND_COLOR)
         for entity in all_sprites:
             entity.draw(screen)
+        player.draw_laser(screen, enemies)
         hud.draw(screen, player, run_manager.current_room)
 
         if player.hit_flash_timer > 0:
@@ -150,11 +222,13 @@ async def main():
         if level_up:
             hud.draw_level_up(screen, pending_upgrades, pygame.mouse.get_pos())
         if run_manager.state == 'REWARD':
-            hud.draw_room_clear(screen)
+            hud.draw_reward(screen, player, reward_cards, pygame.mouse.get_pos())
         if run_manager.state == 'GAME_OVER':
             hud.draw_game_over(screen, run_manager.run_elapsed)
         if run_manager.state == 'WIN':
             hud.draw_win_screen(screen, run_manager.run_elapsed)
+        if paused:
+            hud.draw_pause(screen, player)
         pygame.display.flip()
         await asyncio.sleep(0)
 

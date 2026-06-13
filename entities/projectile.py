@@ -26,10 +26,22 @@ class Projectile(pygame.sprite.Sprite):
 
 
 class Bullet(Projectile):
-    def __init__(self, pos, direction, damage, radius, color, shape, speed):
+    def __init__(self, pos, direction, damage, radius, color, shape, speed,
+                 pierce_count=0, pierce_damage_mult=0.5):
         super().__init__(pos, direction, speed, radius, damage)
         self.color = color
         self.shape = shape
+        self.pierce_count = pierce_count
+        self.pierce_damage_mult = pierce_damage_mult
+
+    def on_hit(self, enemy):
+        """Deal damage to enemy. Returns True if bullet should die, False if it pierces."""
+        enemy.take_damage(self.damage)
+        if self.pierce_count > 0:
+            self.damage = int(self.damage * self.pierce_damage_mult)
+            self.pierce_count -= 1
+            return False
+        return True
 
     def draw(self, surface):
         if self.shape == 'circle':

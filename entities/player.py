@@ -1,4 +1,5 @@
 import math
+import random
 import pygame
 from settings import (
     ARENA_LEFT, ARENA_TOP, ARENA_RIGHT, ARENA_BOTTOM,
@@ -52,7 +53,7 @@ class Player(pygame.sprite.Sprite):
 
         self._ammo_by_weapon = {}   # weapon name → saved ammo
         self._upgrade_history = []  # ordered list of applied upgrade IDs
-        self.equip(WEAPONS['pistol'])
+        self.equip(random.choice(list(WEAPONS.values())))
 
     def equip(self, weapon_def):
         # Persist current weapon's ammo before switching
@@ -128,9 +129,10 @@ class Player(pygame.sprite.Sprite):
         self._shot_cooldown = self.shot_cooldown_base
 
         weapon = self.weapon
-        pellets = weapon['pellets']
+        pellets = self.effective_pellets()
         spread = weapon['spread']
         bdef = weapon['bullet']
+        pierce_count, pierce_damage_mult = self.effective_pierce()
 
         if pellets == 1 or spread == 0.0:
             directions = [pygame.math.Vector2(self.facing)]
@@ -147,9 +149,45 @@ class Player(pygame.sprite.Sprite):
             ]
 
         return [
-            Bullet(self.pos, d, self.damage, bdef['radius'], bdef['color'], bdef['shape'], bdef['speed'])
+            Bullet(
+                self.pos, d, self.effective_damage(),
+                bdef['radius'], bdef['color'], bdef['shape'], bdef['speed'],
+                pierce_count=pierce_count, pierce_damage_mult=pierce_damage_mult,
+            )
             for d in directions
         ]
+
+    def equip_augment(self, augment_def):
+        if len(self.augments) < 2:
+            self.augments.append(augment_def)
+
+    def effective_damage(self):
+        m = 1.0
+        for a in self.augments:
+            m *= a.get('damage_mult', 1.0)
+        return int(self.damage * m)
+
+    def effective_reload_time(self):
+        m = 1.0
+        for a in self.augments:
+            m *= a.get('reload_time_mult', 1.0)
+        return self.reload_time * m
+
+    def effective_mag_size(self):
+        m = 1.0
+        for a in self.augments:
+            m *= a.get('mag_size_mult', 1.0)
+        return int(self.mag_size * m)
+
+    def effective_pellets(self):
+        bonus = sum(a.get('pellet_bonus', 0) for a in self.augments)
+        return self.weapon['pellets'] + bonus
+
+    def effective_pierce(self):
+        for a in self.augments:
+            if 'pierce_count' in a:
+                return a['pierce_count'], a.get('pierce_damage_mult', 0.5)
+        return 0, 0.5
 
     def try_reload(self):
         if not self.reloading:
@@ -178,9 +216,9 @@ class Player(pygame.sprite.Sprite):
             self._shot_cooldown = max(0.0, self._shot_cooldown - dt)
 
         if self.reloading:
-            self.reload_progress = min(1.0, self.reload_progress + dt / self.reload_time)
+            self.reload_progress = min(1.0, self.reload_progress + dt / self.effective_reload_time())
             if self.reload_progress >= 1.0:
-                self.ammo = self.mag_size
+                self.ammo = self.effective_mag_size()
                 self.reloading = False
                 self.reload_complete = True
 
@@ -189,3 +227,33 @@ class Player(pygame.sprite.Sprite):
         pygame.draw.circle(surface, WHITE, center, PLAYER_RADIUS)
         tip = pygame.math.Vector2(center) + self.facing * PLAYER_INDICATOR_LENGTH
         pygame.draw.line(surface, INDICATOR_COLOR, center, tip, 2)
+
+    def draw_laser(self, surface, enemies):
+        """Draw laser pointer line if laser_pointer augment is active."""
+        if not any(a.get('id') == 'laser_pointer' for a in self.augments):
+            return
+
+        MAX_RANGE = 300
+        start = pygame.math.Vector2(self.rect.center)
+        end = start + self.facing * MAX_RANGE
+
+        nearest_end = end
+        nearest_dist_sq = MAX_RANGE * MAX_RANGE + 1
+        for enemy in enemies:
+            hit = enemy.rect.clipline(
+                (int(start.x), int(start.y)),
+                (int(end.x), int(end.y)),
+            )
+            if hit:
+                hit_pt = pygame.math.Vector2(hit[0])
+                dist_sq = (hit_pt - start).length_squared()
+                if dist_sq < nearest_dist_sq:
+                    nearest_dist_sq = dist_sq
+                    nearest_end = hit_pt
+
+        laser_surf = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+        sx, sy = int(start.x), int(start.y)
+        ex, ey = int(nearest_end.x), int(nearest_end.y)
+        pygame.draw.line(laser_surf, (180, 0, 0, 80), (sx, sy), (ex, ey), 3)
+        pygame.draw.line(laser_surf, (255, 60, 60, 220), (sx, sy), (ex, ey), 1)
+        surface.blit(laser_surf, (0, 0))
